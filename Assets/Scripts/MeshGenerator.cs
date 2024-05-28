@@ -188,6 +188,10 @@ public class MeshGenerator : MonoBehaviour {
 
         Vector3 worldBounds = new Vector3 (numChunks.x, numChunks.y, numChunks.z) * boundsSize;
 
+        // Read in rho_b ascii file
+
+        // Fill pointsBuffer
+
         densityGenerator.Generate (pointsBuffer, numPointsPerAxis, boundsSize, worldBounds, centre, offset, pointSpacing);
 
         triangleBuffer.SetCounterValue (0);
