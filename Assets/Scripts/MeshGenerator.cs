@@ -30,7 +30,7 @@ public class MeshGenerator : MonoBehaviour {
     public float boundsSize = 1;
     public Vector3 offset = Vector3.zero;
 
-    [Range (2, 100)]
+    [Range (2, 500)]
     public int numPointsPerAxis = 30;
 
     [Header ("Gizmos")]

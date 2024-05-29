@@ -13,5 +13,6 @@ void Density (uint3 id : SV_DispatchThreadID)
     float3 pos = centre + id * spacing - boundsSize/2;
 
     int index = indexFromCoord(id.x,id.y,id.z);
-    points[index] = float4(pos, rhob[index]);
+    int rhoindex = indexFromCoord_xtoy(id.x,id.y,id.z);
+    points[index] = float4(pos, rhob[rhoindex]);
 }
