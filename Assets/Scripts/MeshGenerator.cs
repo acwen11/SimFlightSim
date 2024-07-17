@@ -25,10 +25,16 @@ public class MeshGenerator : MonoBehaviour {
     public Material mat;
     public bool generateColliders;
 
-    [Header ("Voxel Settings")]
-    public float isoLevel;
+    [Header("Voxel Settings")]
+    public int set_num_surfaces;
+    public bool logscale;
+    public float min_isoLevel;
+    public float max_isoLevel;
     public float boundsSize = 1;
     public Vector3 offset = Vector3.zero;
+
+    [HideInInspector]
+    public static int num_surfaces;
 
     [Range (2, 500)]
     public int numPointsPerAxis = 30;
@@ -51,6 +57,9 @@ public class MeshGenerator : MonoBehaviour {
     bool settingsUpdated;
 
     void Awake () {
+        // This number is constant throughout game
+        num_surfaces = set_num_surfaces;
+        Debug.Log("num_surfaces set to " + num_surfaces);
         if (Application.isPlaying && !fixedMapSize) {
             InitVariableChunkStructures ();
 
@@ -178,6 +187,37 @@ public class MeshGenerator : MonoBehaviour {
         return GeometryUtility.TestPlanesAABB (planes, bounds);
     }
 
+    float[] get_isosurface_vals()
+    {
+        float[] iso_vals = new float[num_surfaces];
+        float tmpmin, tmpmax, drho;
+        if (logscale)
+        {
+            tmpmin = Mathf.Log10(min_isoLevel);
+            tmpmax = Mathf.Log10(max_isoLevel);
+        }
+        else
+        {
+            tmpmin = min_isoLevel;
+            tmpmax = max_isoLevel;
+        }
+        drho = (tmpmin - tmpmax) / num_surfaces;
+        
+        for (int ii=0; ii<num_surfaces; ii++)
+        {
+            if (logscale)
+            {
+                iso_vals[ii] = Mathf.Pow(10, tmpmin + ii * drho);
+            }
+            else
+            {
+                iso_vals[ii] = tmpmin + ii * drho;
+            }
+        }
+
+        return iso_vals;
+    }
+
     public void UpdateChunkMesh (Chunk chunk) {
         int numVoxelsPerAxis = numPointsPerAxis - 1;
         int numThreadsPerAxis = Mathf.CeilToInt (numVoxelsPerAxis / (float) threadGroupSize);
@@ -188,46 +228,49 @@ public class MeshGenerator : MonoBehaviour {
 
         Vector3 worldBounds = new Vector3 (numChunks.x, numChunks.y, numChunks.z) * boundsSize;
 
-        // Read in rho_b ascii file
+        float[] iso_levels = get_isosurface_vals();
 
-        // Fill pointsBuffer
+        for (int ii = 0; ii < num_surfaces; ii++)
+        {
+            densityGenerator.Generate(pointsBuffer, numPointsPerAxis, boundsSize, worldBounds, centre, offset, pointSpacing);
 
-        densityGenerator.Generate (pointsBuffer, numPointsPerAxis, boundsSize, worldBounds, centre, offset, pointSpacing);
+            triangleBuffer.SetCounterValue(0);
+            shader.SetBuffer(0, "points", pointsBuffer);
+            shader.SetBuffer(0, "triangles", triangleBuffer);
+            shader.SetInt("numPointsPerAxis", numPointsPerAxis);
+            shader.SetFloat("isoLevel", iso_levels[ii]);
 
-        triangleBuffer.SetCounterValue (0);
-        shader.SetBuffer (0, "points", pointsBuffer);
-        shader.SetBuffer (0, "triangles", triangleBuffer);
-        shader.SetInt ("numPointsPerAxis", numPointsPerAxis);
-        shader.SetFloat ("isoLevel", isoLevel);
+            shader.Dispatch(0, numThreadsPerAxis, numThreadsPerAxis, numThreadsPerAxis);
 
-        shader.Dispatch (0, numThreadsPerAxis, numThreadsPerAxis, numThreadsPerAxis);
+            // Get number of triangles in the triangle buffer
+            ComputeBuffer.CopyCount(triangleBuffer, triCountBuffer, 0);
+            int[] triCountArray = { 0 };
+            triCountBuffer.GetData(triCountArray);
+            int numTris = triCountArray[0];
 
-        // Get number of triangles in the triangle buffer
-        ComputeBuffer.CopyCount (triangleBuffer, triCountBuffer, 0);
-        int[] triCountArray = { 0 };
-        triCountBuffer.GetData (triCountArray);
-        int numTris = triCountArray[0];
+            // Get triangle data from shader
+            Triangle[] tris = new Triangle[numTris];
+            triangleBuffer.GetData(tris, 0, 0, numTris);
 
-        // Get triangle data from shader
-        Triangle[] tris = new Triangle[numTris];
-        triangleBuffer.GetData (tris, 0, 0, numTris);
+            Mesh mesh = chunk.mesh[ii];
+            mesh.Clear();
 
-        Mesh mesh = chunk.mesh;
-        mesh.Clear ();
+            var vertices = new Vector3[numTris * 3];
+            var meshTriangles = new int[numTris * 3];
 
-        var vertices = new Vector3[numTris * 3];
-        var meshTriangles = new int[numTris * 3];
-
-        for (int i = 0; i < numTris; i++) {
-            for (int j = 0; j < 3; j++) {
-                meshTriangles[i * 3 + j] = i * 3 + j;
-                vertices[i * 3 + j] = tris[i][j];
+            for (int i = 0; i < numTris; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    meshTriangles[i * 3 + j] = i * 3 + j;
+                    vertices[i * 3 + j] = tris[i][j];
+                }
             }
-        }
-        mesh.vertices = vertices;
-        mesh.triangles = meshTriangles;
+            mesh.vertices = vertices;
+            mesh.triangles = meshTriangles;
 
-        mesh.RecalculateNormals ();
+            mesh.RecalculateNormals();
+        }
     }
 
     public void UpdateAllChunks () {

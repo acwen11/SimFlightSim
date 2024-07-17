@@ -10,8 +10,7 @@ public class rhobArrDensity : DensityGenerator {
         float[] rhob = new float[numpoints];
 
         // Read in file
-        Debug.Log("Test:" + File.Exists(@"C:\Users\Allen\CactusAstronaut\Assets\Materials\SeaWorld.mat"));
-        Debug.Log("My file:" + File.Exists(@"C:\Users\Allen\CactusAstronaut\Assets\Gridfunctions\rhob_vis139.asc"));
+        // Debug.Log("My file:" + File.Exists(@"C:\Users\Allen\CactusAstronaut\Assets\Gridfunctions\rhob_vis139.asc"));
         var asc_input = File.ReadAllLines(@"C:\Users\Allen\CactusAstronaut\Assets\Gridfunctions\rhob_vis139.asc");
 
         // Create a list we can add the numbers we're parsing to. 
