@@ -59,12 +59,12 @@ public class MeshGenerator : MonoBehaviour {
     void Awake () {
         // This number is constant throughout game
         num_surfaces = set_num_surfaces;
-        Debug.Log("num_surfaces set to " + num_surfaces);
         if (Application.isPlaying && !fixedMapSize) {
             InitVariableChunkStructures ();
 
             var oldChunks = FindObjectsOfType<Chunk> ();
             for (int i = oldChunks.Length - 1; i >= 0; i--) {
+                oldChunks[i].DestroyOrDisable();
                 Destroy (oldChunks[i].gameObject);
             }
         }
@@ -128,6 +128,7 @@ public class MeshGenerator : MonoBehaviour {
         float sqrViewDistance = viewDistance * viewDistance;
 
         // Go through all existing chunks and flag for recyling if outside of max view dst
+        Debug.Log("Init " + chunks.Count + " chunks.");
         for (int i = chunks.Count - 1; i >= 0; i--) {
             Chunk chunk = chunks[i];
             Vector3 centre = CentreFromCoord (chunk.coord);
@@ -170,6 +171,7 @@ public class MeshGenerator : MonoBehaviour {
                                 Chunk chunk = CreateChunk (coord);
                                 chunk.coord = coord;
                                 chunk.SetUp (mat, generateColliders);
+                                Debug.Log("Setting up Chunk in InitVisibleChunks.");
                                 existingChunks.Add (coord, chunk);
                                 chunks.Add (chunk);
                                 UpdateChunkMesh (chunk);
@@ -365,7 +367,9 @@ public class MeshGenerator : MonoBehaviour {
                         chunks.Add (newChunk);
                     }
 
+                    Debug.Log("Init " + chunks.Count + " chunks.");
                     chunks[chunks.Count - 1].SetUp (mat, generateColliders);
+                    Debug.Log("Setting up Chunk in InitChunks.");
                 }
             }
         }

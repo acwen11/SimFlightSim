@@ -9,20 +9,26 @@ public class Chunk : MonoBehaviour {
 
     [HideInInspector]
     public Mesh[] mesh;
+    public static GameObject[] surfaces;
 
-    MeshFilter meshFilter;
-    MeshRenderer meshRenderer;
-    MeshCollider meshCollider;
+    // MeshFilter meshFilter;
+    // MeshRenderer meshRenderer;
+    // MeshCollider meshCollider;
     bool generateCollider;
 
     public void DestroyOrDisable () {
         if (Application.isPlaying) {
-            for (int ii = 0; ii < MeshGenerator.num_surfaces; ii++)
+            for (int ii = 0; ii < meshgen.set_num_surfaces; ii++)
             {
                 mesh[ii].Clear ();
+                Destroy(surfaces[ii]);
             }
             gameObject.SetActive (false);
         } else {
+            for (int ii = 0; ii < meshgen.set_num_surfaces; ii++)
+            {
+                DestroyImmediate(surfaces[ii], false);
+            }
             DestroyImmediate (gameObject, false);
         }
     }
@@ -31,50 +37,58 @@ public class Chunk : MonoBehaviour {
     public void SetUp (Material mat, bool generateCollider) {
         Debug.Log("chunk sees" + meshgen.set_num_surfaces + "Surfaces");
         mesh = new Mesh[meshgen.set_num_surfaces];
+        surfaces = new GameObject[meshgen.set_num_surfaces];
+
+        MeshFilter[] filters = new MeshFilter[meshgen.set_num_surfaces];
+        MeshRenderer[] renderers = new MeshRenderer[meshgen.set_num_surfaces];
+        MeshCollider[] colliders = new MeshCollider[meshgen.set_num_surfaces];
 
         this.generateCollider = generateCollider;
 
-        meshFilter = GetComponent<MeshFilter> ();
-        meshRenderer = GetComponent<MeshRenderer> ();
-        meshCollider = GetComponent<MeshCollider> ();
-
-        if (meshFilter == null) {
-            meshFilter = gameObject.AddComponent<MeshFilter> ();
-        }
-
-        if (meshRenderer == null) {
-            meshRenderer = gameObject.AddComponent<MeshRenderer> ();
-        }
-
-        if (meshCollider == null && generateCollider) {
-            meshCollider = gameObject.AddComponent<MeshCollider> ();
-        }
-        if (meshCollider != null && !generateCollider) {
-            DestroyImmediate (meshCollider);
-        }
-
-        for (int ii = 0; ii < MeshGenerator.num_surfaces; ii++)
+        for (int ii = 0; ii < meshgen.set_num_surfaces; ii++)
         {
-            mesh[ii] = meshFilter.sharedMesh;
+            if (surfaces[ii] == null)
+            {
+                surfaces[ii] = new GameObject("surf" + ii);
+            }
+            filters[ii] = surfaces[ii].GetComponent<MeshFilter> ();
+            renderers[ii] = surfaces[ii].GetComponent<MeshRenderer> ();
+            colliders[ii] = surfaces[ii].GetComponent<MeshCollider> ();
+
+            if (filters[ii] == null) {
+                filters[ii] = surfaces[ii].AddComponent<MeshFilter> ();
+            }
+
+            if (renderers[ii] == null) {
+                renderers[ii] = surfaces[ii].AddComponent<MeshRenderer> ();
+            }
+
+            if (colliders[ii] == null && generateCollider) {
+                colliders[ii] = surfaces[ii].AddComponent<MeshCollider> ();
+            }
+            if (colliders[ii] != null && !generateCollider) {
+                DestroyImmediate (colliders[ii]);
+            }
+            mesh[ii] = filters[ii].sharedMesh;
             if (mesh[ii] == null)
             {
                 mesh[ii] = new Mesh();
                 mesh[ii].indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-                meshFilter.sharedMesh = mesh[ii];
+                filters[ii].sharedMesh = mesh[ii];
             }
 
             if (generateCollider)
             {
-                if (meshCollider.sharedMesh == null)
+                if (colliders[ii].sharedMesh == null)
                 {
-                    meshCollider.sharedMesh = mesh[ii];
+                    colliders[ii].sharedMesh = mesh[ii];
                 }
                 // force update
-                meshCollider.enabled = false;
-                meshCollider.enabled = true;
+                colliders[ii].enabled = false;
+                colliders[ii].enabled = true;
             }
+            renderers[ii].material = mat;
         }
 
-        meshRenderer.material = mat;
     }
 }
