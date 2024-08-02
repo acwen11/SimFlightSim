@@ -9,12 +9,24 @@ public class Chunk : MonoBehaviour {
 
     [HideInInspector]
     public Mesh[] mesh;
-    public static GameObject[] surfaces;
+
+    [HideInInspector]
+    public GameObject[] surfaces;
+
+    [HideInInspector]
+    public bool surf_init;
 
     // MeshFilter meshFilter;
     // MeshRenderer meshRenderer;
     // MeshCollider meshCollider;
     bool generateCollider;
+
+    private void Awake()
+    {
+        surf_init = false;
+        mesh = new Mesh[meshgen.set_num_surfaces];
+        surfaces = new GameObject[meshgen.set_num_surfaces];
+    }
 
     public void DestroyOrDisable () {
         if (Application.isPlaying) {
@@ -31,26 +43,32 @@ public class Chunk : MonoBehaviour {
             }
             DestroyImmediate (gameObject, false);
         }
+        surf_init = false;
     }
 
     // Add components/get references in case lost (references can be lost when working in the editor)
     public void SetUp (Material mat, bool generateCollider) {
-        Debug.Log("chunk sees" + meshgen.set_num_surfaces + "Surfaces");
-        mesh = new Mesh[meshgen.set_num_surfaces];
-        surfaces = new GameObject[meshgen.set_num_surfaces];
-
         MeshFilter[] filters = new MeshFilter[meshgen.set_num_surfaces];
         MeshRenderer[] renderers = new MeshRenderer[meshgen.set_num_surfaces];
         MeshCollider[] colliders = new MeshCollider[meshgen.set_num_surfaces];
 
         this.generateCollider = generateCollider;
 
-        for (int ii = 0; ii < meshgen.set_num_surfaces; ii++)
+        if (!surf_init)
         {
-            if (surfaces[ii] == null)
+            for (int ii = 0; ii < meshgen.set_num_surfaces; ii++)
             {
                 surfaces[ii] = new GameObject("surf" + ii);
             }
+            surf_init = true;
+        }
+
+        for (int ii = 0; ii < meshgen.set_num_surfaces; ii++)
+        {
+            //if (surfaces[ii] == null)
+            //{
+            //    surfaces[ii] = new GameObject("surf" + ii);
+            //}
             filters[ii] = surfaces[ii].GetComponent<MeshFilter> ();
             renderers[ii] = surfaces[ii].GetComponent<MeshRenderer> ();
             colliders[ii] = surfaces[ii].GetComponent<MeshCollider> ();
