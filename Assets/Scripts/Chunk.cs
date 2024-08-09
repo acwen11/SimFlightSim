@@ -48,27 +48,24 @@ public class Chunk : MonoBehaviour {
 
     // Add components/get references in case lost (references can be lost when working in the editor)
     public void SetUp (Material mat, bool generateCollider) {
-        MeshFilter[] filters = new MeshFilter[meshgen.set_num_surfaces];
-        MeshRenderer[] renderers = new MeshRenderer[meshgen.set_num_surfaces];
-        MeshCollider[] colliders = new MeshCollider[meshgen.set_num_surfaces];
+        int ns = meshgen.set_num_surfaces;
+        MeshFilter[] filters = new MeshFilter[ns];
+        MeshRenderer[] renderers = new MeshRenderer[ns];
+        MeshCollider[] colliders = new MeshCollider[ns];
 
         this.generateCollider = generateCollider;
 
         if (!surf_init)
         {
-            for (int ii = 0; ii < meshgen.set_num_surfaces; ii++)
+            for (int ii = 0; ii < ns; ii++)
             {
                 surfaces[ii] = new GameObject("surf" + ii);
             }
             surf_init = true;
         }
 
-        for (int ii = 0; ii < meshgen.set_num_surfaces; ii++)
+        for (int ii = 0; ii < ns; ii++)
         {
-            //if (surfaces[ii] == null)
-            //{
-            //    surfaces[ii] = new GameObject("surf" + ii);
-            //}
             filters[ii] = surfaces[ii].GetComponent<MeshFilter> ();
             renderers[ii] = surfaces[ii].GetComponent<MeshRenderer> ();
             colliders[ii] = surfaces[ii].GetComponent<MeshCollider> ();
@@ -105,7 +102,16 @@ public class Chunk : MonoBehaviour {
                 colliders[ii].enabled = false;
                 colliders[ii].enabled = true;
             }
+
+            // Set Color
+            float alp_pow = 0.5f;
+            float ens = Mathf.Pow(ns, alp_pow);
+            float alp = (ens - Mathf.Pow(ii, alp_pow)) / ens;
+            Color iso_color = new Color(110, 0, 255, alp);
+            Debug.Log(iso_color.ToString("F5"));
             renderers[ii].material = mat;
+            renderers[ii].material.color = iso_color;
+            //renderers[ii].material.color = Color.blue;
         }
 
     }

@@ -37,7 +37,7 @@ public class rhobArrDensity : DensityGenerator {
         {
             rhob[ii] = parsedNumbers[ii];
         }
-        
+
         return rhob;
     }
 
