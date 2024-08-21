@@ -22,7 +22,8 @@ public class MeshGenerator : MonoBehaviour {
     public bool autoUpdateInEditor = true;
     public bool autoUpdateInGame = true;
     public ComputeShader shader;
-    public Material mat;
+    public Material trans_mat;
+    public Material opq_mat;
     public bool generateColliders;
 
     [Header("Voxel Settings")]
@@ -170,7 +171,7 @@ public class MeshGenerator : MonoBehaviour {
                             } else {
                                 Chunk chunk = CreateChunk (coord);
                                 chunk.coord = coord;
-                                chunk.SetUp (mat, generateColliders);
+                                chunk.SetUp (trans_mat, opq_mat, generateColliders);
                                 Debug.Log("Setting up Chunk in InitVisibleChunks.");
                                 existingChunks.Add (coord, chunk);
                                 chunks.Add (chunk);
@@ -367,9 +368,9 @@ public class MeshGenerator : MonoBehaviour {
                         chunks.Add (newChunk);
                     }
 
-                    Debug.Log("Init " + chunks.Count + " chunks.");
-                    chunks[chunks.Count - 1].SetUp (mat, generateColliders);
-                    Debug.Log("Setting up Chunk in InitChunks.");
+                    // Debug.Log("Init " + chunks.Count + " chunks.");
+                    chunks[chunks.Count - 1].SetUp (trans_mat, opq_mat, generateColliders);
+                    // Debug.Log("Setting up Chunk in InitChunks.");
                 }
             }
         }

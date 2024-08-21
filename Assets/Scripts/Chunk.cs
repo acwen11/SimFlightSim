@@ -7,6 +7,8 @@ public class Chunk : MonoBehaviour {
 
     public MeshGenerator meshgen;
 
+    public Colormap cmap;
+
     [HideInInspector]
     public Mesh[] mesh;
 
@@ -47,7 +49,7 @@ public class Chunk : MonoBehaviour {
     }
 
     // Add components/get references in case lost (references can be lost when working in the editor)
-    public void SetUp (Material mat, bool generateCollider) {
+    public void SetUp (Material trans_mat, Material opq_mat, bool generateCollider) {
         int ns = meshgen.set_num_surfaces;
         MeshFilter[] filters = new MeshFilter[ns];
         MeshRenderer[] renderers = new MeshRenderer[ns];
@@ -104,14 +106,28 @@ public class Chunk : MonoBehaviour {
             }
 
             // Set Color
-            float alp_pow = 0.5f;
+            float alp_pow = 2.0f;
             float ens = Mathf.Pow(ns, alp_pow);
-            float alp = (ens - Mathf.Pow(ii, alp_pow)) / ens;
-            Color iso_color = new Color(110, 0, 255, alp);
+            //float alp = (ens - Mathf.Pow(ii, alp_pow)) / ens;
+            float alp = 1.0f;
+            float[] mat_rgb = cmap.get_cmap_rgb(ii, ns);
+            Color iso_color = new Color(mat_rgb[0], mat_rgb[1], mat_rgb[2], alp);
             Debug.Log(iso_color.ToString("F5"));
-            renderers[ii].material = mat;
+            if (ii == 0)
+            {
+                renderers[ii].material = opq_mat;
+            }
+            else
+            {
+                renderers[ii].material = trans_mat;
+            }
             renderers[ii].material.color = iso_color;
-            //renderers[ii].material.color = Color.blue;
+            renderers[ii].material.renderQueue = ii * 100;
+            if (ii == 0)
+            {
+                renderers[ii].material.EnableKeyword("_EMISSION");
+                renderers[ii].material.SetColor("_EmissionColor", iso_color);
+            }
         }
 
     }
