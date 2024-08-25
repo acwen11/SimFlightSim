@@ -125,8 +125,9 @@ public class Chunk : MonoBehaviour {
             renderers[ii].material.renderQueue = ii * 100;
             if (ii == 0)
             {
+                float emiss_intensity = 0.6f;
                 renderers[ii].material.EnableKeyword("_EMISSION");
-                renderers[ii].material.SetColor("_EmissionColor", iso_color);
+                renderers[ii].material.SetColor("_EmissionColor", iso_color*emiss_intensity);
             }
         }
 
