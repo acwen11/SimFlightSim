@@ -23,7 +23,7 @@ public class Submarine : MonoBehaviour {
     float currentSpeed;
     public Material propSpinMat;
 
-    void Start () {
+    void Awake () {
         currentSpeed = maxSpeed;
     }
 

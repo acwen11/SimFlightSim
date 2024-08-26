@@ -60,14 +60,26 @@ public class MeshGenerator : MonoBehaviour {
     void Awake () {
         // This number is constant throughout game
         num_surfaces = set_num_surfaces;
-        if (Application.isPlaying && !fixedMapSize) {
-            InitVariableChunkStructures ();
+    }
 
-            var oldChunks = FindObjectsOfType<Chunk> ();
-            for (int i = oldChunks.Length - 1; i >= 0; i--) {
+    private void Start()
+    {
+        if (Application.isPlaying && !fixedMapSize)
+        {
+            InitVariableChunkStructures();
+
+            var oldChunks = FindObjectsOfType<Chunk>();
+            for (int i = oldChunks.Length - 1; i >= 0; i--)
+            {
                 oldChunks[i].DestroyOrDisable();
-                Destroy (oldChunks[i].gameObject);
+                Destroy(oldChunks[i].gameObject);
             }
+        }
+        else if (Application.isPlaying && fixedMapSize)
+        {
+            CreateBuffers ();
+            InitChunks ();
+            UpdateAllChunks ();
         }
     }
 
@@ -86,11 +98,11 @@ public class MeshGenerator : MonoBehaviour {
     public void Run () {
         CreateBuffers ();
 
-        if (fixedMapSize) {
-            InitChunks ();
-            UpdateAllChunks ();
+        // if (fixedMapSize) {
 
-        } else {
+        // } else {
+        if (!fixedMapSize)
+        { 
             if (Application.isPlaying) {
                 InitVisibleChunks ();
             }

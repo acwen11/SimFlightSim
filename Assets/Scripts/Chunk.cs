@@ -23,9 +23,13 @@ public class Chunk : MonoBehaviour {
     // MeshCollider meshCollider;
     bool generateCollider;
 
-    private void Awake()
+    private void Awake ()
     {
         surf_init = false;
+    }
+
+    private void Start ()
+    {
         mesh = new Mesh[meshgen.set_num_surfaces];
         surfaces = new GameObject[meshgen.set_num_surfaces];
     }
@@ -116,13 +120,14 @@ public class Chunk : MonoBehaviour {
             if (ii == 0)
             {
                 renderers[ii].material = opq_mat;
+                renderers[ii].material.renderQueue = 2000; // force this to render after skybox
             }
             else
             {
                 renderers[ii].material = trans_mat;
+                renderers[ii].material.renderQueue = ii * 1 + 3000; // force this to render after skybox
             }
             renderers[ii].material.color = iso_color;
-            renderers[ii].material.renderQueue = ii * 100;
             if (ii == 0)
             {
                 float emiss_intensity = 0.6f;
@@ -130,6 +135,5 @@ public class Chunk : MonoBehaviour {
                 renderers[ii].material.SetColor("_EmissionColor", iso_color*emiss_intensity);
             }
         }
-
     }
 }
