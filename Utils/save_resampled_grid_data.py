@@ -14,111 +14,119 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, see <https://www.gnu.org/licenses/>.
 
-import logging
 import os
+import numpy as np
 
 from kuibit import argparse_helper as kah
 from kuibit.simdir import SimDir
 
 if __name__ == "__main__":
-    desc = f"""{kah.get_program_name()} dumps a specific grid variable
-    resampled to a given grid into a file. Saving as .npz files guarantees
-    the best performances. For 3D data, the default resolution will lead to
-    long processing times. """
+		desc = f"""{kah.get_program_name()} dumps a 3D grid variable
+		resampled to a given chunk layout into a file, and saves layout data
+		to a separate file. """
 
-    parser = kah.init_argparse(description=desc)
-    parser.add_argument(
-        "--variable", type=str, required=True, help="Variable to save."
-    )
-    parser.add_argument(
-        "--iteration",
-        type=int,
-        default=-1,
-        help="Iteration to plot. If -1, the latest.",
-    )
+		parser = kah.init_argparse(description=desc)
+		parser.add_argument(
+				"--variable", default='rho_b', type=str, help="Variable to save."
+		)
+		parser.add_argument(
+				"--iteration",
+				type=int,
+				default=-1,
+				help="Iteration to plot. If -1, the latest.",
+		)
+		parser.add_argument(
+				"--dataout",
+				type=str,
+				help="Name of the data output files.",
+		)
+		parser.add_argument(
+				"-x0",
+				"--origin",
+				type=float,
+				nargs="+",
+		)
+		parser.add_argument(
+				"-x1",
+				"--corner",
+				type=float,
+				nargs="+",
+		)
+		parser.add_argument(
+				"--numchunks",
+				type=int,
+				nargs="+",
+		)
 
-    parser.add_argument(
-        "--resolution",
-        type=int,
-        default=500,
-        help=(("Resolution of the resampled data" "(default: %(default)s)")),
-    )
+		args = kah.get_args(parser)
 
-    parser.add_argument(
-        "--type",
-        type=str,
-        choices=["x", "y", "z", "xy", "xz", "yz", "xyz"],
-        default="xyz",
-        help="Type of data (default: %(default)s)",
-    )
+		try:
+				os.mkdir(args.dataout)
+				print(f"Directory '{directory_name}' created successfully.")
+		except FileExistsError:
+				print(f"Directory '{directory_name}' already exists.")
+		except PermissionError:
+				print(f"Permission denied: Unable to create '{directory_name}'.")
+		except Exception as e:
+				print(f"An error occurred: {e}")
 
-    parser.add_argument(
-        "--outname",
-        type=str,
-        help="Name of the output file.",
-    )
+		layoutname = args.dataout + "_pars.txt"
+		layoutpath = os.path.join(args.dataout, layoutname)
 
-    parser.add_argument(
-        "-x0",
-        "--origin",
-        type=float,
-        nargs="+",
-    )
-    parser.add_argument(
-        "-x1",
-        "--corner",
-        type=float,
-        nargs="+",
-    )
+		iteration = args.iteration
+		x0, x1 = args.origin, args.corner
+		print(x0)
+		print(x1)
+		nchunks = args.numchunks
+		# chunks hardcoded as 128^3 points, and we want chunk interfaces to share the same points
+		shape = 128 * np.array(nchunks) - (np.array(nchunks) - 1)
+		print(shape)
+		boundsx = (x1[0] - x0[0]) / nchunks[0]
+		boundsy = (x1[1] - x0[1]) / nchunks[1]
+		boundsz = (x1[2] - x0[2]) / nchunks[2]
+		print("Chunk physical bounds: {:f} {:f} {:f}".format(boundsx, boundsy, boundsz))
 
-    args = kah.get_args(parser)
+		assert boundsx == boundsy, "ERROR: chunk physical bounds do not match"
+		assert boundsx == boundsz, "ERROR: chunk physical bounds do not match"
 
-    if len(args.type) != len(args.origin):
-        raise ValueError(
-            f"x0 ({args.origin}) and type ({args.type}) are incompatible"
-        )
+		print("Reading variable {:s}".format(args.variable))
+		with SimDir(
+				args.datadir,
+				ignore_symlinks=args.ignore_symlinks,
+				pickle_file=args.pickle_file,
+		) as sim:
+				reader = sim.gridfunctions['xyz']
+				var = reader[args.variable]
+				print("Read variable")
 
-    if len(args.type) != len(args.corner):
-        raise ValueError(
-            f"x1 ({args.corner}) and type ({args.type}) are incompatible"
-        )
+				if iteration == -1:
+						iteration = var.available_iterations[-1]
 
-    if args.outname is None:
-        outname = f"{args.variable}_{args.type}.npz"
-    else:
-        outname = args.outname
+				print("Reading {:d} and resampling".format(iteration))
 
-    output_path = os.path.join(args.outdir, outname)
+				data = var[iteration].to_UniformGridData(shape, x0, x1).data
 
-    iteration = args.iteration
-    x0, x1, res = args.origin, args.corner, args.resolution
-    shape = [res] * len(args.type)
+		for kk in range(nchunks[2]):
+			for jj in range(nchunks[1]):
+				for ii in range(nchunks[0]):
+					# Slice data s.t. adjacent chunks share a point
+					imin = ii * 128 - ii
+					imax = (ii + 1) * 128 - ii
+					jmin = jj * 128 - jj
+					jmax = (jj + 1) * 128 - jj
+					kmin = kk * 128 - kk
+					kmax = (kk + 1) * 128 - kk
 
-    logger = logging.getLogger(__name__)
+					chdata = data[imin:imax, jmin:jmax, kmin:kmax]
+					chdata = chdata.reshape(np.prod(chdata.shape)) # flatten to 1d
+					outname = args.dataout + "_{:d}{:d}{:d}.txt".format(ii, jj, kk)
+					output_path = os.path.join(args.dataout, outname)
 
-    if args.verbose:
-        logging.basicConfig(format="%(asctime)s - %(message)s")
-        logger.setLevel(logging.DEBUG)
+					print("Saving to {:s}".format(output_path))
+					# TODO: Save as binary
+					np.savetxt(output_path, chdata)
 
-    logger.debug(f"Reading variable {args.variable}")
-    with SimDir(
-        args.datadir,
-        ignore_symlinks=args.ignore_symlinks,
-        pickle_file=args.pickle_file,
-    ) as sim:
-        reader = sim.gridfunctions[args.type]
-        logger.debug(f"Variables available {reader}")
-        var = reader[args.variable]
-        logger.debug(f"Read variable {args.variable}")
-
-        if iteration == -1:
-            iteration = var.available_iterations[-1]
-
-        logger.debug(f"Reading {iteration} and resampling")
-
-        data = var[iteration].to_UniformGridData(
-            shape, x0, x1, iteration=iteration
-        )
-
-        logger.debug(f"Saving to {output_path}")
-        data.save(output_path)
+		print("Writing layout file")
+		with open(layoutpath, 'w') as layoutf:
+				layoutf.write("Num chunks: {:d} {:d} {:d}".format(args.numchunks[0], args.numchunks[1], args.numchunks[2]))
+				layoutf.write("boundsSize: {:f}".format(boundsx))
