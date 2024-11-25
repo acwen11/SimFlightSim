@@ -1,5 +1,5 @@
 #pragma kernel Density
-#include "/Includes/Density.compute"
+#include "Includes/Density.compute"
 
 StructuredBuffer<float> rhob;
 

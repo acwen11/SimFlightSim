@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
+using System.IO;
 
 [ExecuteInEditMode]
 public class MeshGenerator : MonoBehaviour {
@@ -11,8 +13,6 @@ public class MeshGenerator : MonoBehaviour {
     public DensityGenerator densityGenerator;
 
     public bool fixedMapSize;
-    [ConditionalHide (nameof (fixedMapSize), true)]
-    public Vector3Int numChunks = Vector3Int.one;
     [ConditionalHide (nameof (fixedMapSize), false)]
     public Transform viewer;
     [ConditionalHide (nameof (fixedMapSize), false)]
@@ -27,15 +27,20 @@ public class MeshGenerator : MonoBehaviour {
     public bool generateColliders;
 
     [Header("Voxel Settings")]
+    public string data_name;
     public int set_num_surfaces;
     public bool logscale;
     public float min_isoLevel;
     public float max_isoLevel;
-    public float boundsSize = 1;
     public Vector3 offset = Vector3.zero;
+    public Colormap cmap;
 
     [HideInInspector]
     public static int num_surfaces;
+    [HideInInspector]
+    public float boundsSize = 1;
+    [HideInInspector]
+    public Vector3Int numChunks = Vector3Int.one;
 
     [Range (2, 500)]
     public int numPointsPerAxis = 30;
@@ -57,9 +62,12 @@ public class MeshGenerator : MonoBehaviour {
 
     bool settingsUpdated;
 
-    void Awake () {
+    void Awake() {
         // This number is constant throughout game
         num_surfaces = set_num_surfaces;
+
+        read_chunk_pars(@"Assets/Gridfunctions/" + data_name + @"/" + data_name + "_pars.txt", ref boundsSize, ref numChunks);
+        densityGenerator.datadir = data_name;
     }
 
     private void Start()
@@ -98,9 +106,6 @@ public class MeshGenerator : MonoBehaviour {
     public void Run () {
         CreateBuffers ();
 
-        // if (fixedMapSize) {
-
-        // } else {
         if (!fixedMapSize)
         { 
             if (Application.isPlaying) {
@@ -113,6 +118,37 @@ public class MeshGenerator : MonoBehaviour {
             ReleaseBuffers ();
         }
 
+    }
+
+    void read_chunk_pars(string par_path, ref float bd_size, ref Vector3Int nchunks)
+    {
+        //Read the text from directly from the test.txt file
+        StreamReader reader = new StreamReader(par_path);
+        bool bds_read = false;
+        bool nchunks_read = false;
+        string inp_txt = reader.ReadLine();
+        while((!bds_read && !nchunks_read) || (inp_txt != null))
+        {
+            string[] inp_ln = inp_txt.Split();
+            if (inp_ln[0] == "BoundsSize:")
+            {
+                bd_size = float.Parse(inp_ln[1], CultureInfo.InvariantCulture.NumberFormat);
+                bds_read = true;
+            }
+            else if (inp_ln[0] == "NumChunks:")
+            {
+                nchunks = new Vector3Int(int.Parse(inp_ln[1]), int.Parse(inp_ln[2]), int.Parse(inp_ln[3]));
+                nchunks_read = true;
+            }
+            inp_txt = reader.ReadLine();
+        }
+        if(!bds_read && !nchunks_read)
+        {
+            Debug.LogError("Cannot read chunk parameters.");
+            // Quit Game
+        }
+
+        reader.Close();
     }
 
     public void RequestMeshUpdate () {
@@ -216,13 +252,13 @@ public class MeshGenerator : MonoBehaviour {
             tmpmin = min_isoLevel;
             tmpmax = max_isoLevel;
         }
-        drho = (tmpmin - tmpmax) / num_surfaces;
+        drho = (tmpmax - tmpmin) / num_surfaces;
         
         for (int ii=0; ii<num_surfaces; ii++)
         {
             if (logscale)
             {
-                iso_vals[ii] = Mathf.Pow(10, tmpmin + ii * drho);
+                iso_vals[ii] = Mathf.Pow(10, tmpmax - ii * drho);
             }
             else
             {
@@ -380,9 +416,9 @@ public class MeshGenerator : MonoBehaviour {
                         chunks.Add (newChunk);
                     }
 
-                    // Debug.Log("Init " + chunks.Count + " chunks.");
+                    Debug.Log("Init " + chunks.Count + " chunks.");
                     chunks[chunks.Count - 1].SetUp (trans_mat, opq_mat, generateColliders);
-                    // Debug.Log("Setting up Chunk in InitChunks.");
+                    Debug.Log("Setting up Chunk in InitChunks.");
                 }
             }
         }
@@ -398,6 +434,8 @@ public class MeshGenerator : MonoBehaviour {
         chunk.transform.parent = chunkHolder.transform;
         Chunk newChunk = chunk.AddComponent<Chunk> ();
         newChunk.coord = coord;
+        newChunk.num_surfaces = num_surfaces;
+        newChunk.cmap = cmap;
         return newChunk;
     }
 

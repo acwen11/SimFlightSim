@@ -4,6 +4,7 @@ using UnityEngine;
 
 public abstract class DensityGenerator : MonoBehaviour {
 
+    public string datadir;
     const int threadGroupSize = 8;
     public ComputeShader densityShader;
 

@@ -4,10 +4,8 @@ using UnityEngine;
 
 public class Chunk : MonoBehaviour {
     public Vector3Int coord;
-
-    public MeshGenerator meshgen;
-
     public Colormap cmap;
+    public int num_surfaces;
 
     [HideInInspector]
     public Mesh[] mesh;
@@ -15,14 +13,15 @@ public class Chunk : MonoBehaviour {
     [HideInInspector]
     public GameObject[] surfaces;
 
-    [HideInInspector]
-    public bool surf_init;
+    // [HideInInspector]
+    // private bool surf_init;
 
     // MeshFilter meshFilter;
     // MeshRenderer meshRenderer;
     // MeshCollider meshCollider;
     bool generateCollider;
 
+    /*
     private void Awake ()
     {
         surf_init = false;
@@ -30,48 +29,59 @@ public class Chunk : MonoBehaviour {
 
     private void Start ()
     {
-        mesh = new Mesh[meshgen.set_num_surfaces];
-        surfaces = new GameObject[meshgen.set_num_surfaces];
+        // mesh = new Mesh[meshgen.set_num_surfaces];
+        // surfaces = new GameObject[meshgen.set_num_surfaces];
+        Debug.Log("Chunk Start, num_surfaces = " + num_surfaces);
     }
+    */
 
     public void DestroyOrDisable () {
         if (Application.isPlaying) {
-            for (int ii = 0; ii < meshgen.set_num_surfaces; ii++)
+            for (int ii = 0; ii < num_surfaces; ii++)
             {
                 mesh[ii].Clear ();
                 Destroy(surfaces[ii]);
             }
             gameObject.SetActive (false);
         } else {
-            for (int ii = 0; ii < meshgen.set_num_surfaces; ii++)
+            for (int ii = 0; ii < num_surfaces; ii++)
             {
                 DestroyImmediate(surfaces[ii], false);
             }
             DestroyImmediate (gameObject, false);
         }
-        surf_init = false;
+        // surf_init = false;
     }
 
     // Add components/get references in case lost (references can be lost when working in the editor)
     public void SetUp (Material trans_mat, Material opq_mat, bool generateCollider) {
-        int ns = meshgen.set_num_surfaces;
+        int ns = num_surfaces;
+        mesh = new Mesh[num_surfaces];
+        surfaces = new GameObject[num_surfaces];
         MeshFilter[] filters = new MeshFilter[ns];
         MeshRenderer[] renderers = new MeshRenderer[ns];
         MeshCollider[] colliders = new MeshCollider[ns];
 
         this.generateCollider = generateCollider;
 
+        /*
         if (!surf_init)
         {
             for (int ii = 0; ii < ns; ii++)
             {
+                Debug.Log("idx " + ii + " with array elem " + surfaces[ii]);
                 surfaces[ii] = new GameObject("surf" + ii);
             }
             surf_init = true;
         }
+        */
 
         for (int ii = 0; ii < ns; ii++)
         {
+            if (surfaces[ii] == null) {
+                surfaces[ii] = new GameObject("surf" + ii + "_" + coord.x + coord.y + coord.z);
+            }
+
             filters[ii] = surfaces[ii].GetComponent<MeshFilter> ();
             renderers[ii] = surfaces[ii].GetComponent<MeshRenderer> ();
             colliders[ii] = surfaces[ii].GetComponent<MeshCollider> ();
