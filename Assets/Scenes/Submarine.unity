@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 0.1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.0044607185, g: 0.003969316, b: 0.0047547794, a: 0.1}
+  m_IndirectSpecularColor: {r: 0.0044607758, g: 0.0039693983, b: 0.004754915, a: 0.1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -817,15 +817,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coord: {x: 0, y: 0, z: 0}
-  meshgen: {fileID: 1227901944}
   cmap: {fileID: 878155024}
+  num_surfaces: 0
   mesh:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
   surfaces: []
-  surf_init: 1
 --- !u!1 &1227901942
 GameObject:
   m_ObjectHideFlags: 0
@@ -857,7 +856,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   densityGenerator: {fileID: 1343201507}
   fixedMapSize: 1
-  numChunks: {x: 1, y: 1, z: 1}
   viewer: {fileID: 327418025}
   viewDistance: 37
   autoUpdateInEditor: 1
@@ -866,13 +864,16 @@ MonoBehaviour:
   trans_mat: {fileID: 2100000, guid: 56f0cf3f099985948b9e334daa0bb995, type: 2}
   opq_mat: {fileID: 2100000, guid: d5868c1268ad4474bbefb9a71c1007e6, type: 2}
   generateColliders: 0
+  data_name: whyisitmoving
   set_num_surfaces: 6
   logscale: 1
   min_isoLevel: 0.0000001
   max_isoLevel: 0.0005
-  boundsSize: 139
   offset: {x: 0, y: 0, z: 0}
-  numPointsPerAxis: 139
+  cmap: {fileID: 0}
+  boundsSize: 139
+  numChunks: {x: 1, y: 1, z: 1}
+  numPointsPerAxis: 128
   showBoundsGizmo: 1
   boundsGizmoCol: {r: 1, g: 1, b: 1, a: 0.09803922}
 --- !u!4 &1227901945
@@ -966,6 +967,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39819c572c3204902847662df1fa9c6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  datadir: 
   densityShader: {fileID: 7200000, guid: 6f17253ba515b49de95452c1dcbdc45c, type: 3}
   seed: 1
   numOctaves: 8
@@ -1137,6 +1139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1efb383ddbc2529478d6f0a427f03019, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  datadir: 
   densityShader: {fileID: 7200000, guid: 35729b75fbd539c41a9d55db7fd3dd63, type: 3}
 --- !u!1 &1401516119
 GameObject:
