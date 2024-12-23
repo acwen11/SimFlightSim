@@ -58,6 +58,7 @@ public class Chunk : MonoBehaviour {
         int ns = num_surfaces;
         mesh = new Mesh[num_surfaces];
         surfaces = new GameObject[num_surfaces];
+        Debug.Log("In Chunk.SetUp, initializing arrays with " + ns + " elements");
         MeshFilter[] filters = new MeshFilter[ns];
         MeshRenderer[] renderers = new MeshRenderer[ns];
         MeshCollider[] colliders = new MeshCollider[ns];

@@ -23,8 +23,8 @@ public class MainMenu : MonoBehaviour
         }
         else
         {
-            Debug.Log("Starting Game.");
-            // SceneManager.LoadScene("Submarine");
+            // Debug.Log("Starting Game.");
+            SceneManager.LoadScene("Submarine");
         }
     }
 

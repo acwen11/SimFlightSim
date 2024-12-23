@@ -29,19 +29,21 @@ public class OptionsMenu : MonoBehaviour
         // TODO: define global enum?
         switch (cmapid)
         {
-            case 0:
+            case 1:
                 PlayerPrefs.SetString("cmap", "inferno");
                 break;
-            case 1:
+            case 2:
                 PlayerPrefs.SetString("cmap", "magma");
                 break;
-            case 2:
+            case 3:
                 PlayerPrefs.SetString("cmap", "plasma");
                 break;
-            case 3:
+            case 4:
                 PlayerPrefs.SetString("cmap", "viridis");
                 break;
-
+            default:
+                PlayerPrefs.SetString("cmap", "ERROR");
+                break;
         }
     }
 
@@ -73,14 +75,22 @@ public class OptionsMenu : MonoBehaviour
         float minval = PlayerPrefs.GetFloat("min");
         float maxval = PlayerPrefs.GetFloat("max");
         int logscale = PlayerPrefs.GetInt("logscale");
+        Debug.Log("In Options Menu, logscale = " + logscale);
 
         string sim_name = PlayerPrefs.GetString("simname");
         string simdir = @"Assets/Gridfunctions/" + sim_name;
         string simpar = @"Assets/Gridfunctions/" + sim_name + @"/" + sim_name + "_pars.txt";
 
+        string setcmapstr = PlayerPrefs.GetString("cmap");
+
         if ((logscale == 1) && (minval <= 0))
         {
             errorMsg.text = "Error: minimum <= 0 when log scale is active.";
+            return;
+        }
+        else if ((setcmapstr == "") || (setcmapstr == "ERROR"))
+        {
+            errorMsg.text = "Error: Colormap error.";
             return;
         }
         else if (minval >= maxval)
@@ -88,7 +98,6 @@ public class OptionsMenu : MonoBehaviour
             errorMsg.text = "Error: minimum value >= maximum value.";
             return;
         }
-        /*
         else if (!Directory.Exists(simdir))
         {
             errorMsg.text = "Error: data directory not found.";
@@ -99,7 +108,6 @@ public class OptionsMenu : MonoBehaviour
             errorMsg.text = "Error: chunk parameters not found.";
             return;
         }
-        */
         else
         {
             opt_set = true;

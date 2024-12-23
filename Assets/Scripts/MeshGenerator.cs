@@ -9,6 +9,20 @@ public class MeshGenerator : MonoBehaviour {
 
     const int threadGroupSize = 8;
 
+    const int numPointsPerAxis = 128;
+
+    // From Options Menu
+    [HideInInspector] public string data_name;
+    [HideInInspector] public int num_surfaces;
+    [HideInInspector] public bool logscale;
+    [HideInInspector] public float min_isoLevel;
+    [HideInInspector] public float max_isoLevel;
+    [HideInInspector] public Colormap cmap;
+
+    // From Parameter File
+    [HideInInspector] public float boundsSize = 1;
+    [HideInInspector] public Vector3Int numChunks = Vector3Int.one;
+
     [Header ("General Settings")]
     public DensityGenerator densityGenerator;
 
@@ -27,23 +41,7 @@ public class MeshGenerator : MonoBehaviour {
     public bool generateColliders;
 
     [Header("Voxel Settings")]
-    public string data_name;
-    public int set_num_surfaces;
-    public bool logscale;
-    public float min_isoLevel;
-    public float max_isoLevel;
     public Vector3 offset = Vector3.zero;
-    public Colormap cmap;
-
-    [HideInInspector]
-    public static int num_surfaces;
-    [HideInInspector]
-    public float boundsSize = 1;
-    [HideInInspector]
-    public Vector3Int numChunks = Vector3Int.one;
-
-    [Range (2, 500)]
-    public int numPointsPerAxis = 30;
 
     [Header ("Gizmos")]
     public bool showBoundsGizmo = true;
@@ -63,8 +61,17 @@ public class MeshGenerator : MonoBehaviour {
     bool settingsUpdated;
 
     void Awake() {
-        // This number is constant throughout game
-        num_surfaces = set_num_surfaces;
+        // Load Options
+        data_name = PlayerPrefs.GetString("simname");
+        num_surfaces = PlayerPrefs.GetInt("numSurfaces");
+        logscale = PlayerPrefs.GetInt("logscale") != 0;
+        Debug.Log("In MeshGen, logscale = " + logscale);
+        min_isoLevel = PlayerPrefs.GetFloat("min");
+        max_isoLevel = PlayerPrefs.GetFloat("max");
+        cmap = gameObject.AddComponent<Colormap>();
+        string cmapstr = PlayerPrefs.GetString("cmap");
+        Debug.Log("cmap string = " + cmapstr);
+        cmap.cmap = cmapstr; 
 
         read_chunk_pars(@"Assets/Gridfunctions/" + data_name + @"/" + data_name + "_pars.txt", ref boundsSize, ref numChunks);
         densityGenerator.datadir = data_name;
@@ -122,12 +129,13 @@ public class MeshGenerator : MonoBehaviour {
 
     void read_chunk_pars(string par_path, ref float bd_size, ref Vector3Int nchunks)
     {
+        Debug.Log("Reading from file: " + par_path);
         //Read the text from directly from the test.txt file
         StreamReader reader = new StreamReader(par_path);
         bool bds_read = false;
         bool nchunks_read = false;
         string inp_txt = reader.ReadLine();
-        while((!bds_read && !nchunks_read) || (inp_txt != null))
+        while((!bds_read && !nchunks_read) && (inp_txt != null))
         {
             string[] inp_ln = inp_txt.Split();
             if (inp_ln[0] == "BoundsSize:")
@@ -262,7 +270,7 @@ public class MeshGenerator : MonoBehaviour {
             }
             else
             {
-                iso_vals[ii] = tmpmin + ii * drho;
+                iso_vals[ii] = tmpmax - ii * drho;
             }
         }
 
