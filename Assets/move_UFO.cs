@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class move_UFO : MonoBehaviour
 {
@@ -12,19 +13,22 @@ public class move_UFO : MonoBehaviour
     public float smoothSpeed = 3;
     public float smoothTurnSpeed = 3;
 
+    public CinemachineVirtualCamera fp_cam;
+    public CinemachineVirtualCamera tp_cam;
+
     /*
     public Transform propeller;
     public Transform rudderPitch;
     public Transform rudderYaw;
     public float propellerSpeedFac = 2;
     public float rudderAngle = 30;
+    public Material propSpinMat;
     */
 
     Vector3 velocity;
     float yawVelocity;
     float pitchVelocity;
     float currentSpeed;
-    public Material propSpinMat;
 
     void Awake()
     {
@@ -41,6 +45,13 @@ public class move_UFO : MonoBehaviour
         if (Input.GetKey(KeyCode.E))
         {
             accelDir += 1;
+        }
+        if (Input.GetKeyUp(KeyCode.T))
+        {
+            int fp_prio = fp_cam.m_Priority;
+            int tp_prio = tp_cam.m_Priority;
+            fp_cam.m_Priority = tp_prio;
+            tp_cam.m_Priority = fp_prio;
         }
 
         currentSpeed += acceleration * Time.deltaTime * accelDir;
