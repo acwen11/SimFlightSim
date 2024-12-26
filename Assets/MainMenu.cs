@@ -23,7 +23,6 @@ public class MainMenu : MonoBehaviour
         }
         else
         {
-            // Debug.Log("Starting Game.");
             SceneManager.LoadScene("Submarine");
         }
     }
@@ -37,7 +36,6 @@ public class MainMenu : MonoBehaviour
 
     public void QuitGame()
     {
-        Debug.Log("Quitting Game.");
         Application.Quit();
     }
 }

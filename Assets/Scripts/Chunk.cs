@@ -58,7 +58,6 @@ public class Chunk : MonoBehaviour {
         int ns = num_surfaces;
         mesh = new Mesh[num_surfaces];
         surfaces = new GameObject[num_surfaces];
-        Debug.Log("In Chunk.SetUp, initializing arrays with " + ns + " elements");
         MeshFilter[] filters = new MeshFilter[ns];
         MeshRenderer[] renderers = new MeshRenderer[ns];
         MeshCollider[] colliders = new MeshCollider[ns];
@@ -127,7 +126,6 @@ public class Chunk : MonoBehaviour {
             float alp = 1.0f;
             float[] mat_rgb = cmap.get_cmap_rgb(ii, ns);
             Color iso_color = new Color(mat_rgb[0], mat_rgb[1], mat_rgb[2], alp);
-            Debug.Log(iso_color.ToString("F5"));
             if (ii == 0)
             {
                 renderers[ii].material = opq_mat;

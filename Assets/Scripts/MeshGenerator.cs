@@ -65,12 +65,10 @@ public class MeshGenerator : MonoBehaviour {
         data_name = PlayerPrefs.GetString("simname");
         num_surfaces = PlayerPrefs.GetInt("numSurfaces");
         logscale = PlayerPrefs.GetInt("logscale") != 0;
-        Debug.Log("In MeshGen, logscale = " + logscale);
         min_isoLevel = PlayerPrefs.GetFloat("min");
         max_isoLevel = PlayerPrefs.GetFloat("max");
         cmap = gameObject.AddComponent<Colormap>();
         string cmapstr = PlayerPrefs.GetString("cmap");
-        Debug.Log("cmap string = " + cmapstr);
         cmap.cmap = cmapstr; 
 
         read_chunk_pars(@"Assets/Gridfunctions/" + data_name + @"/" + data_name + "_pars.txt", ref boundsSize, ref numChunks);
@@ -129,7 +127,6 @@ public class MeshGenerator : MonoBehaviour {
 
     void read_chunk_pars(string par_path, ref float bd_size, ref Vector3Int nchunks)
     {
-        Debug.Log("Reading from file: " + par_path);
         //Read the text from directly from the test.txt file
         StreamReader reader = new StreamReader(par_path);
         bool bds_read = false;
@@ -185,7 +182,6 @@ public class MeshGenerator : MonoBehaviour {
         float sqrViewDistance = viewDistance * viewDistance;
 
         // Go through all existing chunks and flag for recyling if outside of max view dst
-        Debug.Log("Init " + chunks.Count + " chunks.");
         for (int i = chunks.Count - 1; i >= 0; i--) {
             Chunk chunk = chunks[i];
             Vector3 centre = CentreFromCoord (chunk.coord);
@@ -228,7 +224,6 @@ public class MeshGenerator : MonoBehaviour {
                                 Chunk chunk = CreateChunk (coord);
                                 chunk.coord = coord;
                                 chunk.SetUp (trans_mat, opq_mat, generateColliders);
-                                Debug.Log("Setting up Chunk in InitVisibleChunks.");
                                 existingChunks.Add (coord, chunk);
                                 chunks.Add (chunk);
                                 UpdateChunkMesh (chunk);
@@ -424,9 +419,7 @@ public class MeshGenerator : MonoBehaviour {
                         chunks.Add (newChunk);
                     }
 
-                    Debug.Log("Init " + chunks.Count + " chunks.");
                     chunks[chunks.Count - 1].SetUp (trans_mat, opq_mat, generateColliders);
-                    Debug.Log("Setting up Chunk in InitChunks.");
                 }
             }
         }

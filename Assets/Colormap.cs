@@ -9,10 +9,8 @@ public class Colormap : MonoBehaviour
 
     private double[] get_rgb_vals(double[,] cmap_arr, int surf_idx, int num_surf)
     {
-        // Debug.Log("Cmap length: " + cmap_arr.Length);
         int nvals = cmap_arr.Length / 3; // 3 RGB vals
         int cmap_idx = Mathf.FloorToInt((float)(num_surf - (surf_idx + 1)) / num_surf * nvals);
-        // Debug.Log("requested idx: " + cmap_idx + " for surf " + surf_idx);
         double[] rgb_vals = {cmap_arr[cmap_idx, 0],cmap_arr[cmap_idx, 1],cmap_arr[cmap_idx, 2]};
         return rgb_vals;
     }

@@ -2,41 +2,120 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using UnityEngine.InputSystem;
 
 public class move_UFO : MonoBehaviour
 {
-    public float maxSpeed = 5;
-    public float maxPitchSpeed = 3;
-    public float maxTurnSpeed = 50;
+    public float maxSpeed = 1;
+    // public float maxPitchSpeed = 3;
+    public float maxRotSpeed = 50;
+    public float maxRollSpeed = 50;
     public float acceleration = 2;
+    public float drag_const = 0.1f;
 
-    public float smoothSpeed = 3;
-    public float smoothTurnSpeed = 3;
+    // public float smoothSpeed = 3;
+    // public float smoothTurnSpeed = 3;
 
     public CinemachineVirtualCamera fp_cam;
     public CinemachineVirtualCamera tp_cam;
 
-    /*
-    public Transform propeller;
-    public Transform rudderPitch;
-    public Transform rudderYaw;
-    public float propellerSpeedFac = 2;
-    public float rudderAngle = 30;
-    public Material propSpinMat;
-    */
+    // Vector3 velocity;
+    // float yawVelocity;
+    // float pitchVelocity;
+    // float currentSpeed;
+    Vector3 currentVel;
 
-    Vector3 velocity;
-    float yawVelocity;
-    float pitchVelocity;
-    float currentSpeed;
+    // Input Vars
+    InputAction moveAction;
+    InputAction lookAction;
+    InputAction upThrustAction;
+    InputAction downThrustAction;
+    InputAction rollAction;
+    InputAction toggleCamAction;
 
     void Awake()
     {
-        currentSpeed = maxSpeed;
+        // currentSpeed = maxSpeed;
+        currentVel = Vector3.zero;
+    }
+
+    private void Start()
+    {
+        moveAction = InputSystem.actions.FindAction("Move");
+        lookAction = InputSystem.actions.FindAction("Look");
+        upThrustAction = InputSystem.actions.FindAction("Up Thrust");
+        downThrustAction = InputSystem.actions.FindAction("Down Thrust");
+        rollAction = InputSystem.actions.FindAction("Roll Mode");
+        toggleCamAction = InputSystem.actions.FindAction("Toggle Camera");
     }
 
     void Update()
     {
+        // Init motion components
+        float ax    = 0f;
+        float ay    = 0f;
+        float az    = 0f;
+        float omyaw   = 0f;
+        float ompitch = 0f;
+        float omroll  = 0f;
+
+        // Calculate Linear Motion
+        // 1. Read input
+        // NOTE: difference between Input system axes and object local axes
+        Vector2 moveValue = moveAction.ReadValue<Vector2>();
+        az = acceleration * moveValue.y;
+        ax = acceleration * moveValue.x;
+        if (upThrustAction.IsPressed())
+        {
+            ay += acceleration;
+        }
+        if (downThrustAction.IsPressed())
+        {
+            ay -= acceleration;
+        }
+        Vector3 accel_vec = new Vector3(ax, ay, az);
+
+        // 2. Apply damping
+        accel_vec -= drag_const * currentVel;
+
+        // 3. Limit speed
+        currentVel += accel_vec * Time.deltaTime;
+        float fac = maxSpeed / currentVel.magnitude;
+        if (fac < 1)
+        {
+            currentVel *= fac;
+        }
+
+        // 4. Update position
+        transform.Translate(currentVel * Time.deltaTime);
+
+        // Calculate Rotation
+        // 1. Get input
+        Vector2 rotValue = lookAction.ReadValue<Vector2>();
+        if (rollAction.IsPressed())
+        {
+            omroll = -maxRollSpeed * rotValue.x; // Personal preference for direction
+        }
+        else
+        {
+            omyaw = maxRotSpeed * rotValue.x;
+        }
+        ompitch = -maxRotSpeed * rotValue.y; // Personal preference for direction
+
+        // 2. Update rotation
+        Vector3 omEuler = new Vector3(ompitch, omyaw, omroll);
+        transform.Rotate(omEuler * Time.deltaTime);
+
+        // Additional actions
+        if (toggleCamAction.WasReleasedThisFrame())
+        {
+            int fp_prio = fp_cam.m_Priority;
+            int tp_prio = tp_cam.m_Priority;
+            fp_cam.m_Priority = tp_prio;
+            tp_cam.m_Priority = fp_prio;
+        }
+
+        /*
         float accelDir = 0;
         if (Input.GetKey(KeyCode.Q))
         {
@@ -68,13 +147,6 @@ public class move_UFO : MonoBehaviour
         yawVelocity = Mathf.Lerp(yawVelocity, targetYawVelocity, Time.deltaTime * smoothTurnSpeed);
         transform.localEulerAngles += (Vector3.up * yawVelocity + Vector3.left * pitchVelocity) * Time.deltaTime * speedPercent;
         transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
-
-        /*
-        rudderYaw.localEulerAngles = Vector3.up * yawVelocity / maxTurnSpeed * rudderAngle;
-        rudderPitch.localEulerAngles = Vector3.left * pitchVelocity / maxPitchSpeed * rudderAngle;
-
-        propeller.Rotate(Vector3.forward * Time.deltaTime * propellerSpeedFac * speedPercent, Space.Self);
-        propSpinMat.color = new Color(propSpinMat.color.r, propSpinMat.color.g, propSpinMat.color.b, speedPercent * .3f);
         */
 
     }

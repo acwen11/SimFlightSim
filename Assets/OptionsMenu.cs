@@ -75,7 +75,6 @@ public class OptionsMenu : MonoBehaviour
         float minval = PlayerPrefs.GetFloat("min");
         float maxval = PlayerPrefs.GetFloat("max");
         int logscale = PlayerPrefs.GetInt("logscale");
-        Debug.Log("In Options Menu, logscale = " + logscale);
 
         string sim_name = PlayerPrefs.GetString("simname");
         string simdir = @"Assets/Gridfunctions/" + sim_name;
