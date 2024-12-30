@@ -27,6 +27,19 @@ public class MainMenu : MonoBehaviour
         }
     }
 
+    public void StartViewer()
+    {
+        if (!options.opt_set)
+        {
+            errorMsg.text = "Error: options not set.";
+            return;
+        }
+        else
+        {
+            SceneManager.LoadScene("Viewer");
+        }
+    }
+
     public void GoToOptions()
     {
         errorMsg.text = string.Empty;

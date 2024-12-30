@@ -11,4 +11,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Submarine.unity
     guid: ea180d5c2a0fe4bd3a916b7b3c598eff
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: 6c69726f6119b1641bdc8a33ee9e3a32,
+      type: 2}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 08e6314887c359a41ba945e680f38b4c,
+      type: 3}

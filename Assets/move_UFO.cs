@@ -41,12 +41,12 @@ public class move_UFO : MonoBehaviour
 
     private void Start()
     {
-        moveAction = InputSystem.actions.FindAction("Move");
-        lookAction = InputSystem.actions.FindAction("Look");
-        upThrustAction = InputSystem.actions.FindAction("Up Thrust");
-        downThrustAction = InputSystem.actions.FindAction("Down Thrust");
-        rollAction = InputSystem.actions.FindAction("Roll Mode");
-        toggleCamAction = InputSystem.actions.FindAction("Toggle Camera");
+        moveAction = InputSystem.actions.FindAction("Player/Move");
+        lookAction = InputSystem.actions.FindAction("Player/Look");
+        upThrustAction = InputSystem.actions.FindAction("Player/Up Thrust");
+        downThrustAction = InputSystem.actions.FindAction("Player/Down Thrust");
+        rollAction = InputSystem.actions.FindAction("Player/Roll Mode");
+        toggleCamAction = InputSystem.actions.FindAction("Player/Toggle Camera");
     }
 
     void Update()
