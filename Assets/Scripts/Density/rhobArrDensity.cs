@@ -48,31 +48,10 @@ public class rhobArrDensity : DensityGenerator {
         // TODO: Cactus and Unity coords are inconsistent! Fix this in the data generation step instead.
         string datfile = @"Assets/Gridfunctions/" + datadir + @"/" + datadir + "_" + idx_ch[2] + idx_ch[0] + idx_ch[1] + ".txt";
         Debug.Log("Reading chunk file " + datfile);
-        Vector3Int grid_dim = Vector3Int.FloorToInt(worldBounds / boundsSize) * numPointsPerAxis;
         float[] rhob = Read_rhob_ascii(datfile, numPointsPerAxis * numPointsPerAxis * numPointsPerAxis);
-        // float[] rhob = new float[numPointsPerAxis * numPointsPerAxis * numPointsPerAxis];
-
-        // Loop over array
-        var rhobBuffer = new ComputeBuffer (rhob.Length, sizeof (float));
-        // 
-        // for (int kk = 0; kk < numPointsPerAxis; kk++)
-        // {
-        //     for (int jj = 0; jj < numPointsPerAxis; jj++)
-        //     {
-        //         for (int ii = 0; ii < numPointsPerAxis; ii++)
-        //         {
-        //             int ridx = ii + numPointsPerAxis * jj + numPointsPerAxis * numPointsPerAxis * kk;
-        //             int GFi = ii + idx_ch[1] * numPointsPerAxis; // Note that Unity swaps x and y
-        //             int GFj = jj + idx_ch[0] * numPointsPerAxis;
-        //             int GFk = kk + idx_ch[2] * numPointsPerAxis;
-        //             int GFidx = GFi + grid_dim[0] * GFj + grid_dim[0] * grid_dim[1] * GFk;
-
-        //             rhob[ridx] = rhoGF[GFidx];
-        //         }
-        //     }
-        // }
 
         // Send rhob to shader (runs on GPU?)
+        var rhobBuffer = new ComputeBuffer (rhob.Length, sizeof (float));
         rhobBuffer.SetData (rhob);
         buffersToRelease = new List<ComputeBuffer>();
         buffersToRelease.Add(rhobBuffer);

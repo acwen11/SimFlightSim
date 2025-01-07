@@ -20,7 +20,7 @@ public class MeshGenerator : MonoBehaviour {
     [HideInInspector] public Colormap cmap;
 
     // From Parameter File
-    [HideInInspector] public float boundsSize = 1;
+    [HideInInspector] public float boundsSize = 1f;
     [HideInInspector] public Vector3Int numChunks = Vector3Int.one;
 
     [Header ("General Settings")]
@@ -132,6 +132,8 @@ public class MeshGenerator : MonoBehaviour {
         bool bds_read = false;
         bool nchunks_read = false;
         string inp_txt = reader.ReadLine();
+        // Debug.Log("Reading Line...");
+        // Debug.Log(inp_txt);
         while((!bds_read && !nchunks_read) && (inp_txt != null))
         {
             string[] inp_ln = inp_txt.Split();
@@ -142,12 +144,15 @@ public class MeshGenerator : MonoBehaviour {
             }
             else if (inp_ln[0] == "NumChunks:")
             {
-                nchunks = new Vector3Int(int.Parse(inp_ln[1]), int.Parse(inp_ln[2]), int.Parse(inp_ln[3]));
+                // Must account for different Cactus/Unity coords
+                nchunks = new Vector3Int(int.Parse(inp_ln[3]), int.Parse(inp_ln[1]), int.Parse(inp_ln[2]));
                 nchunks_read = true;
             }
             inp_txt = reader.ReadLine();
+            // Debug.Log("Reading Line...");
+            // Debug.Log(inp_txt);
         }
-        if(!bds_read && !nchunks_read)
+        if(!bds_read || !nchunks_read)
         {
             Debug.LogError("Cannot read chunk parameters.");
             // Quit Game
