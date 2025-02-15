@@ -1,4 +1,3 @@
-
 # Copyright (C) 2020-2023 Gabriele Bozzola
 #
 # This program is free software; you can redistribute it and/or modify it under
@@ -81,9 +80,15 @@ if __name__ == "__main__":
 		# chunks hardcoded as 128^3 points, and we want chunk interfaces to share the same points
 		shape = 128 * np.array(nchunks) - (np.array(nchunks) - 1)
 		print(shape)
-		boundsx = (x1[0] - x0[0]) / nchunks[0]
-		boundsy = (x1[1] - x0[1]) / nchunks[1]
-		boundsz = (x1[2] - x0[2]) / nchunks[2]
+		gboundsx = (x1[0] - x0[0])
+		gboundsy = (x1[1] - x0[1])
+		gboundsz = (x1[2] - x0[2])
+		gbounds = np.array([gboundsx, gboundsy, gboundsz])
+		boundsx = gboundsx / nchunks[0]
+		boundsy = gboundsy / nchunks[1]
+		boundsz = gboundsz / nchunks[2]
+		bounds = np.array([boundsx, boundsy, boundsz])
+		dx = bounds / 127.0
 		print("Chunk physical bounds: {:f} {:f} {:f}".format(boundsx, boundsy, boundsz))
 
 		assert boundsx == boundsy, "ERROR: chunk physical bounds do not match"
@@ -119,12 +124,29 @@ if __name__ == "__main__":
 
 					chdata = data[imin:imax, jmin:jmax, kmin:kmax]
 					chdata = chdata.reshape(np.prod(chdata.shape)) # flatten to 1d
-					outname = args.dataout + "_{:d}{:d}{:d}.txt".format(ii, jj, kk)
-					output_path = os.path.join(args.dataout, outname)
 
+					# Store Coordinate Positions
+					id_axis = np.arange(128)
+					ch_idx = np.array([ii, jj, kk])
+					ch_origin = -gbounds / 2 + ch_idx * bounds
+					posaxis = ch_origin + id_axis * dx[0]
+					posx, posy, posz = np.meshgrid(posaxis, posaxis, posaxis)
+
+					# Bundle output
+					out_arr = np.empty((4, 128*128*128))
+					out_arr[0] = posz
+					out_arr[1] = posy
+					out_arr[2] = posx
+					out_arr[3] = chdata
+					out_arr = out_arr.T.flatten() # convert to 1D [ x(0,0,0), y(0,0,0), z(0,0,0), rho(0,0,0)... ]
+					out_arr = out_arr.ravel()
+					outname = args.dataout + "_{:d}{:d}{:d}.bin".format(ii, jj, kk)
+
+					output_path = os.path.join(args.dataout, outname)
 					print("Saving to {:s}".format(output_path))
-					# TODO: Save as binary
-					np.savetxt(output_path, chdata)
+					with open(outname, 'wb') as vectorData:
+						vectorData.write(bytearray(struct.pack("<%uf" % len(out_arr), *out_arr)))
+
 
 		print("Writing layout file")
 		with open(layoutpath, 'w') as layoutf:

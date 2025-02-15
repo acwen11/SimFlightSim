@@ -139,7 +139,7 @@ public class Chunk : MonoBehaviour {
             renderers[ii].material.color = iso_color;
             if (ii == 0)
             {
-                float emiss_intensity = 0.6f;
+                float emiss_intensity = 0.4f;
                 renderers[ii].material.EnableKeyword("_EMISSION");
                 renderers[ii].material.SetColor("_EmissionColor", iso_color*emiss_intensity);
             }

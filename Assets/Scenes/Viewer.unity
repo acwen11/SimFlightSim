@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 0.1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.0044607758, g: 0.0039693983, b: 0.004754915, a: 0.1}
+  m_IndirectSpecularColor: {r: 0.0044607185, g: 0.003969316, b: 0.0047547794, a: 0.1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -491,6 +491,7 @@ GameObject:
   - component: {fileID: 1227901996}
   - component: {fileID: 1227901997}
   - component: {fileID: 1227901998}
+  - component: {fileID: 1227901999}
   m_Layer: 0
   m_Name: Mesh Generator
   m_TagString: Untagged
@@ -510,14 +511,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c246675c48dd4e6796ca3fe12dabbb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  data_name: whyisitmoving
-  num_surfaces: 2
+  data_name: mergerHR
+  num_surfaces: 8
   logscale: 1
-  min_isoLevel: 0.00000001
-  max_isoLevel: 0.0000001
-  cmap: {fileID: 1227901998}
-  boundsSize: 139
-  numChunks: {x: 2, y: 2, z: 2}
+  min_isoLevel: 1e-10
+  max_isoLevel: 0.0002
+  cmap: {fileID: 1227901999}
+  boundsSize: 20
+  numChunks: {x: 6, y: 3, z: 6}
   densityGenerator: {fileID: 1343201507}
   fixedMapSize: 1
   viewer: {fileID: 327418025}
@@ -1235,6 +1236,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cmap: viridis
+--- !u!114 &1227901999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1227901942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd0bdb979e7b0c441bf01e436ff4ec2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cmap: inferno
 --- !u!1 &1254600029
 GameObject:
   m_ObjectHideFlags: 0
@@ -1399,7 +1413,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1efb383ddbc2529478d6f0a427f03019, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  datadir: whyisitmoving
+  datadir: mergerHR
   densityShader: {fileID: 7200000, guid: 35729b75fbd539c41a9d55db7fd3dd63, type: 3}
 --- !u!1 &1526812848
 GameObject:
@@ -1811,9 +1825,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a848a4bf5bf0d234abafe051203f0326, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cam_radius: 90
-  cam_height: 45
-  cam_angle: 30
+  cam_radius: 30
+  cam_height: 30
+  cam_angle: 45
   move_speed: 0.3
   rot_speed: 0
   save_name: 
