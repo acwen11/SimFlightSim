@@ -1,8 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
+// using System.Globalization;
 using UnityEngine;
+using Unity.Profiling;
 using System.IO;
+using Unity.Collections;
+using Unity.IO.LowLevel.Unsafe;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Jobs;
 
 [ExecuteInEditMode]
 public class MeshGenerator : MonoBehaviour {
@@ -20,6 +25,7 @@ public class MeshGenerator : MonoBehaviour {
     [HideInInspector] public Colormap cmap;
 
     // From Parameter File
+    public ParReader par_reader;
     [HideInInspector] public float boundsSize = 1f;
     [HideInInspector] public Vector3Int numChunks = Vector3Int.one;
 
@@ -60,6 +66,11 @@ public class MeshGenerator : MonoBehaviour {
 
     bool settingsUpdated;
 
+    // Profilers
+    static readonly ProfilerMarker k_ChunkInit = new ProfilerMarker("Init Chunks");
+    static readonly ProfilerMarker k_CreateMesh = new ProfilerMarker("Create Mesh");
+    static readonly ProfilerMarker k_GenRho = new ProfilerMarker("Generate Rho");
+
     void Awake() {
         // Load Options
         data_name = PlayerPrefs.GetString("simname");
@@ -69,9 +80,11 @@ public class MeshGenerator : MonoBehaviour {
         max_isoLevel = PlayerPrefs.GetFloat("max");
         cmap = gameObject.AddComponent<Colormap>();
         string cmapstr = PlayerPrefs.GetString("cmap");
-        cmap.cmap = cmapstr; 
+        cmap.cmap = cmapstr;
 
-        read_chunk_pars(@"Assets/Gridfunctions/" + data_name + @"/" + data_name + "_pars.txt", ref boundsSize, ref numChunks);
+        // read_chunk_pars(@"Assets/Gridfunctions/" + data_name + @"/" + data_name + "_pars.txt", ref boundsSize, ref numChunks);
+        boundsSize = par_reader.par_bounds;
+        numChunks = par_reader.par_nChunks;
         densityGenerator.datadir = data_name;
     }
 
@@ -91,7 +104,11 @@ public class MeshGenerator : MonoBehaviour {
         else if (Application.isPlaying && fixedMapSize)
         {
             CreateBuffers ();
+
+            k_ChunkInit.Begin();
             InitChunks ();
+            k_ChunkInit.End();
+
             UpdateAllChunks ();
         }
     }
@@ -125,6 +142,7 @@ public class MeshGenerator : MonoBehaviour {
 
     }
 
+    /*
     void read_chunk_pars(string par_path, ref float bd_size, ref Vector3Int nchunks)
     {
         //Read the text from directly from the test.txt file
@@ -134,7 +152,7 @@ public class MeshGenerator : MonoBehaviour {
         string inp_txt = reader.ReadLine();
         // Debug.Log("Reading Line...");
         // Debug.Log(inp_txt);
-        while((!bds_read && !nchunks_read) && (inp_txt != null))
+        while ((!bds_read || !nchunks_read) && (inp_txt != null))
         {
             string[] inp_ln = inp_txt.Split();
             if (inp_ln[0] == "BoundsSize:")
@@ -145,7 +163,7 @@ public class MeshGenerator : MonoBehaviour {
             else if (inp_ln[0] == "NumChunks:")
             {
                 // Must account for different Cactus/Unity coords
-                nchunks = new Vector3Int(int.Parse(inp_ln[3]), int.Parse(inp_ln[1]), int.Parse(inp_ln[2]));
+                nchunks = new Vector3Int(int.Parse(inp_ln[1]), int.Parse(inp_ln[3]), int.Parse(inp_ln[2]));
                 nchunks_read = true;
             }
             inp_txt = reader.ReadLine();
@@ -160,6 +178,7 @@ public class MeshGenerator : MonoBehaviour {
 
         reader.Close();
     }
+    */
 
     public void RequestMeshUpdate () {
         if ((Application.isPlaying && autoUpdateInGame) || (!Application.isPlaying && autoUpdateInEditor)) {
@@ -246,6 +265,46 @@ public class MeshGenerator : MonoBehaviour {
         return GeometryUtility.TestPlanesAABB (planes, bounds);
     }
 
+    private unsafe NativeArray<float> Read_rho_arr(Vector3Int idx_ch)
+    {
+        // Read in rho_b values from file
+        // TODO: Cactus and Unity coords are inconsistent! Fix this in the data generation step instead.
+        string dat_file = @"Assets/Gridfunctions/" + data_name + @"/" + data_name + "_" + idx_ch[2] + idx_ch[0] + idx_ch[1] + ".txt";
+        int numpoints = numPointsPerAxis * numPointsPerAxis * numPointsPerAxis;
+        NativeArray<float> rho_tmp = new NativeArray<float>(numpoints * 4, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        NativeArray<float> rho_out = new NativeArray<float>(numpoints * 4, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+
+        // Read in file
+        Debug.Log("Reading chunk file " + dat_file);
+
+
+        ReadCommand cmd;
+        cmd.Offset = 0;
+        cmd.Size = numpoints * 4 * sizeof(float);
+        cmd.Buffer = rho_tmp.GetUnsafePtr();
+
+        FileHandle fileHandle = AsyncReadManager.OpenFileAsync(dat_file);
+
+        ReadCommandArray readCmdArray;
+        readCmdArray.ReadCommands = &cmd;
+        readCmdArray.CommandCount = 1;
+
+        ReadHandle readHandle = AsyncReadManager.Read(fileHandle, readCmdArray);
+
+        JobHandle closeJob = fileHandle.Close(readHandle.JobHandle);
+
+        closeJob.Complete();
+
+        rho_tmp.CopyTo(rho_out);
+
+        readHandle.Dispose();
+
+        for (int i = 0; i < readCmdArray.CommandCount; i++)
+            UnsafeUtility.Free(readCmdArray.ReadCommands[i].Buffer, Allocator.Persistent);
+
+        return rho_out;
+    }
+
     float[] get_isosurface_vals()
     {
         float[] iso_vals = new float[num_surfaces];
@@ -289,9 +348,13 @@ public class MeshGenerator : MonoBehaviour {
 
         float[] iso_levels = get_isosurface_vals();
 
+        k_CreateMesh.Begin();
         for (int ii = 0; ii < num_surfaces; ii++)
         {
-            densityGenerator.Generate(pointsBuffer, numPointsPerAxis, boundsSize, worldBounds, centre, offset, pointSpacing);
+            k_GenRho.Begin();
+            // densityGenerator.Generate(pointsBuffer, numPointsPerAxis, boundsSize, worldBounds, centre, offset, pointSpacing);
+            pointsBuffer.SetData(Read_rho_arr(coord));
+            k_GenRho.End();
 
             triangleBuffer.SetCounterValue(0);
             shader.SetBuffer(0, "points", pointsBuffer);
@@ -330,6 +393,7 @@ public class MeshGenerator : MonoBehaviour {
 
             mesh.RecalculateNormals();
         }
+        k_CreateMesh.End();
     }
 
     public void UpdateAllChunks () {
@@ -344,6 +408,7 @@ public class MeshGenerator : MonoBehaviour {
     void OnDestroy () {
         if (Application.isPlaying) {
             ReleaseBuffers ();
+            Destroy(cmap);
         }
     }
 
