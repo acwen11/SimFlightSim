@@ -62,11 +62,11 @@ if __name__ == "__main__":
 
 		try:
 				os.mkdir(args.dataout)
-				print(f"Directory '{directory_name}' created successfully.")
+				print(f"Directory '{args.dataout}' created successfully.")
 		except FileExistsError:
-				print(f"Directory '{directory_name}' already exists.")
+				print(f"Directory '{args.dataout}' already exists.")
 		except PermissionError:
-				print(f"Permission denied: Unable to create '{directory_name}'.")
+				print(f"Permission denied: Unable to create '{args.dataout}'.")
 		except Exception as e:
 				print(f"An error occurred: {e}")
 
@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
 				print("Reading {:d} and resampling".format(iteration))
 
-				data = var[iteration].to_UniformGridData(shape, x0, x1).data
+				data = var[iteration].to_UniformGridData(shape, x0, x1, resample=True).data
 
 		for kk in range(nchunks[2]):
 			for jj in range(nchunks[1]):
@@ -128,5 +128,5 @@ if __name__ == "__main__":
 
 		print("Writing layout file")
 		with open(layoutpath, 'w') as layoutf:
-				layoutf.write("Num chunks: {:d} {:d} {:d}".format(args.numchunks[0], args.numchunks[1], args.numchunks[2]))
-				layoutf.write("boundsSize: {:f}".format(boundsx))
+				layoutf.write("NumChunks: {:d} {:d} {:d}\n".format(args.numchunks[0], args.numchunks[1], args.numchunks[2]))
+				layoutf.write("BoundsSize: {:f}\n".format(boundsx))
