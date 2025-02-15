@@ -265,14 +265,16 @@ public class MeshGenerator : MonoBehaviour {
         return GeometryUtility.TestPlanesAABB (planes, bounds);
     }
 
-    private unsafe NativeArray<float> Read_rho_arr(Vector3Int idx_ch)
+    //private unsafe NativeArray<float> Read_rho_arr(Vector3Int idx_ch)
+    private unsafe float[] Read_rho_arr(Vector3Int idx_ch)
     {
         // Read in rho_b values from file
         // TODO: Cactus and Unity coords are inconsistent! Fix this in the data generation step instead.
-        string dat_file = @"Assets/Gridfunctions/" + data_name + @"/" + data_name + "_" + idx_ch[2] + idx_ch[0] + idx_ch[1] + ".txt";
+        string dat_file = @"Assets/Gridfunctions/" + data_name + @"/" + data_name + "_" + idx_ch[2] + idx_ch[0] + idx_ch[1] + ".bin";
         int numpoints = numPointsPerAxis * numPointsPerAxis * numPointsPerAxis;
         NativeArray<float> rho_tmp = new NativeArray<float>(numpoints * 4, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-        NativeArray<float> rho_out = new NativeArray<float>(numpoints * 4, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        //NativeArray<float> rho_out = new NativeArray<float>(numpoints * 4, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
+        float[] rho_out = new float[numpoints * 4];
 
         // Read in file
         Debug.Log("Reading chunk file " + dat_file);
@@ -354,6 +356,7 @@ public class MeshGenerator : MonoBehaviour {
             k_GenRho.Begin();
             // densityGenerator.Generate(pointsBuffer, numPointsPerAxis, boundsSize, worldBounds, centre, offset, pointSpacing);
             pointsBuffer.SetData(Read_rho_arr(coord));
+            // shader.SetFloats("points", Read_rho_arr(coord));
             k_GenRho.End();
 
             triangleBuffer.SetCounterValue(0);
