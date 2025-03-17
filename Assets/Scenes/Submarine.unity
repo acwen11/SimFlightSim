@@ -23,7 +23,7 @@ RenderSettings:
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 0.005
+  m_AmbientIntensity: 3
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 2100000, guid: 860a66ca4259b384f9ec01b687f71c3c, type: 2}
@@ -97,7 +97,8 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 06117935b29854145bfd18ec9bbda395,
+    type: 2}
   m_LightingSettings: {fileID: 4890085278179872738, guid: 476c9d55feacdb4469d1f79e43f7331b,
     type: 2}
 --- !u!196 &4
@@ -591,6 +592,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1227901945}
   - component: {fileID: 1227901944}
+  - component: {fileID: 1227901946}
   m_Layer: 0
   m_Name: Mesh Generator
   m_TagString: Untagged
@@ -613,12 +615,12 @@ MonoBehaviour:
   data_name: mergerHR
   num_surfaces: 8
   logscale: 1
-  min_isoLevel: 1e-10
-  max_isoLevel: 0.0002
-  cmap: {fileID: 0}
+  min_isoLevel: 1e-13
+  max_isoLevel: 0.00015
+  cmap: {fileID: 1227901946}
   par_reader: {fileID: 1613054147}
-  boundsSize: 20
-  numChunks: {x: 6, y: 3, z: 6}
+  boundsSize: 1
+  numChunks: {x: 1, y: 1, z: 1}
   densityGenerator: {fileID: 1343201507}
   fixedMapSize: 1
   viewer: {fileID: 327418025}
@@ -647,6 +649,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1227901946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1227901942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd0bdb979e7b0c441bf01e436ff4ec2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cmap: inferno
 --- !u!1 &1254600029
 GameObject:
   m_ObjectHideFlags: 0
@@ -902,7 +917,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1588397590
 MonoBehaviour:
   m_ObjectHideFlags: 0
