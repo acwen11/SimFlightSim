@@ -10,7 +10,8 @@ public class Colormap : MonoBehaviour
     private double[] get_rgb_vals(double[,] cmap_arr, int surf_idx, int num_surf)
     {
         int nvals = cmap_arr.Length / 3; // 3 RGB vals
-        int cmap_idx = Mathf.FloorToInt((float)(num_surf - (surf_idx + 1)) / num_surf * nvals);
+        float cbar_buffer = 0.9f; // Colobar max might be a bit too bright
+        int cmap_idx = Mathf.FloorToInt((float)(num_surf - surf_idx) / num_surf * (nvals * cbar_buffer));
         double[] rgb_vals = {cmap_arr[cmap_idx, 0],cmap_arr[cmap_idx, 1],cmap_arr[cmap_idx, 2]};
         return rgb_vals;
     }
