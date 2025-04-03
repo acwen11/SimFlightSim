@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Chunk : MonoBehaviour {
@@ -64,18 +65,6 @@ public class Chunk : MonoBehaviour {
 
         this.generateCollider = generateCollider;
 
-        /*
-        if (!surf_init)
-        {
-            for (int ii = 0; ii < ns; ii++)
-            {
-                Debug.Log("idx " + ii + " with array elem " + surfaces[ii]);
-                surfaces[ii] = new GameObject("surf" + ii);
-            }
-            surf_init = true;
-        }
-        */
-
         for (int ii = 0; ii < ns; ii++)
         {
             if (surfaces[ii] == null) {
@@ -94,12 +83,15 @@ public class Chunk : MonoBehaviour {
                 renderers[ii] = surfaces[ii].AddComponent<MeshRenderer> ();
             }
 
+            /*
             if (colliders[ii] == null && generateCollider) {
                 colliders[ii] = surfaces[ii].AddComponent<MeshCollider> ();
             }
             if (colliders[ii] != null && !generateCollider) {
                 DestroyImmediate (colliders[ii]);
             }
+            */
+
             mesh[ii] = filters[ii].sharedMesh;
             if (mesh[ii] == null)
             {
@@ -130,6 +122,9 @@ public class Chunk : MonoBehaviour {
             {
                 renderers[ii].material = opq_mat;
                 renderers[ii].material.renderQueue = 2000; // force this to render after skybox
+
+                // Enable collisions here
+                colliders[ii] = surfaces[ii].AddComponent<MeshCollider> ();
             }
             else
             {
@@ -144,5 +139,17 @@ public class Chunk : MonoBehaviour {
                 renderers[ii].material.SetColor("_EmissionColor", iso_color*emiss_intensity);
             }
         }
+    }
+
+    public void RefreshCollider()
+    {
+        MeshCollider innersurf = surfaces[0].GetComponent<MeshCollider>();
+        Mesh innermesh = innersurf.sharedMesh;
+        innermesh.triangles = innermesh.triangles.Reverse().ToArray();
+        innermesh.normals = innermesh.normals.Select(n => -n).ToArray();
+
+        // Necessary for some reason
+        innersurf.convex = true;
+        innersurf.convex = false;
     }
 }

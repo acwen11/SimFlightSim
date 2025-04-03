@@ -78,18 +78,24 @@ public class MeshGenerator : MonoBehaviour {
         logscale = PlayerPrefs.GetInt("logscale") != 0;
         min_isoLevel = PlayerPrefs.GetFloat("min");
         max_isoLevel = PlayerPrefs.GetFloat("max");
+        Colormap prevcolor = GetComponent<Colormap>();
+        while(prevcolor != null)
+        {
+            Destroy(prevcolor);
+            prevcolor = GetComponent<Colormap>();
+        }
         cmap = gameObject.AddComponent<Colormap>();
         string cmapstr = PlayerPrefs.GetString("cmap");
         cmap.cmap = cmapstr;
-
-        // read_chunk_pars(@"Assets/Gridfunctions/" + data_name + @"/" + data_name + "_pars.txt", ref boundsSize, ref numChunks);
-        boundsSize = par_reader.par_bounds;
-        numChunks = par_reader.par_nChunks;
-        densityGenerator.datadir = data_name;
     }
 
     private void Start()
     {
+        // Get Parameters
+        boundsSize = par_reader.par_bounds;
+        numChunks = par_reader.par_nChunks;
+        densityGenerator.datadir = data_name;
+
         if (Application.isPlaying && !fixedMapSize)
         {
             InitVariableChunkStructures();
@@ -101,6 +107,8 @@ public class MeshGenerator : MonoBehaviour {
                 Destroy(oldChunks[i].gameObject);
             }
         }
+
+        // THIS IS ASSUMED TO BE THE ONLY OPTION RN
         else if (Application.isPlaying && fixedMapSize)
         {
             CreateBuffers ();
@@ -110,6 +118,10 @@ public class MeshGenerator : MonoBehaviour {
             k_ChunkInit.End();
 
             UpdateAllChunks ();
+
+            foreach (Chunk chunk in chunks) {
+                chunk.RefreshCollider();
+            }
         }
     }
 

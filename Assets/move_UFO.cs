@@ -12,6 +12,9 @@ public class move_UFO : MonoBehaviour
     public float maxRollSpeed = 50;
     public float acceleration = 2;
     public float drag_const = 0.1f;
+    public float ship_mass = 0.001f;
+
+    public ParReader sim_pars;
 
     // public float smoothSpeed = 3;
     // public float smoothTurnSpeed = 3;
@@ -78,7 +81,18 @@ public class move_UFO : MonoBehaviour
         // 2. Apply damping
         accel_vec -= drag_const * currentVel;
 
-        // 3. Limit speed
+        // 3. Calculate Gravity. Newtonian for now
+        int nsrcs = sim_pars.par_nSrcs;
+        for (int ii=0; ii<nsrcs; ii++)
+        {
+            Vector3 rvec = transform.position - sim_pars.grav_masses[ii].gcoords;
+            float rr = Mathf.Min(rvec.sqrMagnitude, 0.25f); // buffer radius a little bit
+            Vector3 rhat = rvec.normalized;
+            Vector3 Fg = transform.InverseTransformVector(-ship_mass * (sim_pars.grav_masses[ii].gmass / rr) * rhat);
+            accel_vec += Fg;
+        }
+
+        // 4. Limit speed
         currentVel += accel_vec * Time.deltaTime;
         float fac = maxSpeed / currentVel.magnitude;
         if (fac < 1)
@@ -86,7 +100,7 @@ public class move_UFO : MonoBehaviour
             currentVel *= fac;
         }
 
-        // 4. Update position
+        // 5. Update position
         transform.Translate(currentVel * Time.deltaTime);
 
         // Calculate Rotation
@@ -114,40 +128,6 @@ public class move_UFO : MonoBehaviour
             fp_cam.m_Priority = tp_prio;
             tp_cam.m_Priority = fp_prio;
         }
-
-        /*
-        float accelDir = 0;
-        if (Input.GetKey(KeyCode.Q))
-        {
-            accelDir -= 1;
-        }
-        if (Input.GetKey(KeyCode.E))
-        {
-            accelDir += 1;
-        }
-        if (Input.GetKeyUp(KeyCode.T))
-        {
-            int fp_prio = fp_cam.m_Priority;
-            int tp_prio = tp_cam.m_Priority;
-            fp_cam.m_Priority = tp_prio;
-            tp_cam.m_Priority = fp_prio;
-        }
-
-        currentSpeed += acceleration * Time.deltaTime * accelDir;
-        currentSpeed = Mathf.Clamp(currentSpeed, 0, maxSpeed);
-        float speedPercent = currentSpeed / maxSpeed;
-
-        Vector3 targetVelocity = transform.forward * currentSpeed;
-        velocity = Vector3.Lerp(velocity, targetVelocity, Time.deltaTime * smoothSpeed);
-
-        float targetPitchVelocity = Input.GetAxisRaw("Vertical") * maxPitchSpeed;
-        pitchVelocity = Mathf.Lerp(pitchVelocity, targetPitchVelocity, Time.deltaTime * smoothTurnSpeed);
-
-        float targetYawVelocity = Input.GetAxisRaw("Horizontal") * maxTurnSpeed;
-        yawVelocity = Mathf.Lerp(yawVelocity, targetYawVelocity, Time.deltaTime * smoothTurnSpeed);
-        transform.localEulerAngles += (Vector3.up * yawVelocity + Vector3.left * pitchVelocity) * Time.deltaTime * speedPercent;
-        transform.Translate(transform.forward * currentSpeed * Time.deltaTime, Space.World);
-        */
 
     }
 }
