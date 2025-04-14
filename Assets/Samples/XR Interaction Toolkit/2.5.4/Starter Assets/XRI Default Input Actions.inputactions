@@ -785,7 +785,7 @@
                 {
                     "name": "Move",
                     "type": "Value",
-                    "id": "19e3e4fe-daaa-4ad5-a1a1-8017c8d9af6a",
+                    "id": "cc070e18-b346-4a98-a279-22a408f63638",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -960,11 +960,11 @@
                 },
                 {
                     "name": "",
-                    "id": "f8d9aff6-7de3-4620-9e84-8a1e7efdf00d",
+                    "id": "dc2d8228-4ca8-49c2-844d-784afb67a905",
                     "path": "<XRController>{LeftHand}/thumbstick",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Generic XR Controller",
+                    "groups": "",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1503,7 +1503,7 @@
                     "name": "Select",
                     "type": "Button",
                     "id": "ac96c10b-c955-4a46-8e67-bf16bc069b53",
-                    "expectedControlType": "",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -1521,7 +1521,7 @@
                     "name": "Activate",
                     "type": "Button",
                     "id": "41976d89-60de-4deb-bff9-16b4af96b290",
-                    "expectedControlType": "",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -1593,15 +1593,6 @@
                     "name": "Scale Delta",
                     "type": "Value",
                     "id": "19a21f59-bd21-4f77-b29d-4fda26ef6769",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "Roll",
-                    "type": "Value",
-                    "id": "ab96fc2f-4784-419e-b1ad-dee42df43767",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -1771,17 +1762,6 @@
                     "processors": "ScaleVector2(x=0),StickDeadzone",
                     "groups": "Generic XR Controller",
                     "action": "Scale Delta",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "1e0e6974-d7a9-40e2-8197-0bfdbc0928d5",
-                    "path": "<XRController>{RightHand}/thumbstick",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Roll",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
