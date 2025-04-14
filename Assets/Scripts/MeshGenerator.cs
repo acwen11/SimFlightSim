@@ -78,12 +78,14 @@ public class MeshGenerator : MonoBehaviour {
         logscale = PlayerPrefs.GetInt("logscale") != 0;
         min_isoLevel = PlayerPrefs.GetFloat("min");
         max_isoLevel = PlayerPrefs.GetFloat("max");
+        /*
         Colormap prevcolor = GetComponent<Colormap>();
         while(prevcolor != null)
         {
             Destroy(prevcolor);
             prevcolor = GetComponent<Colormap>();
         }
+        */
         cmap = gameObject.AddComponent<Colormap>();
         string cmapstr = PlayerPrefs.GetString("cmap");
         cmap.cmap = cmapstr;
