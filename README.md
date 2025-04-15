@@ -10,10 +10,10 @@ python save_resampled_grid_data.py --variable (grid variable to export) --iterat
 ```
 
 ## Example
-The script essentially interpolates 3D data to 128^3 point cubes, or "chunks". `x0` and `x1` set the size of the region to be exported, and `numchunks` sets the resolution of export data. For example:
+The script essentially interpolates 3D data to $128^3$ point cubes, or "chunks". `x0` and `x1` set the size of the region to be exported, and `numchunks` sets the resolution of export data. For example:
 ```
 python save_resampled_grid_data.py --variable rho --iteration 102400 --dataout bns_MR -x0 -100 -100 -50 -x1 100 100 50 --numchunks 2 2 1
 ```
-exports `rho` at iteration 102400 and stores exported data in a directory named `bns_MR`. Exported data will divide a domain of $x \in [-100, 100]; y \in [-100, 100]; z \in [-50. 50]$ into $2 \times 2 \times 1$ chunks, such that the final uniform grid has $256 \times 256 \times 128$ points. Each direction of each chunk must have the same grid spacing. In this case, the spacing is $100/128$ code units.
+exports `rho` at iteration 102400 and stores exported data in a directory named `bns_MR`. Exported data will divide a domain of $x \in [-100, 100]; y \in [-100, 100]; z \in [-50, 50]$ into $2 \times 2 \times 1$ chunks, such that the final uniform grid has $256 \times 256 \times 128$ points. Each chunk must have the same size and grid spacing. In this case, each chunk covers a volume of $100^3$ code units and has a grid spacing of $100/128$ code units.
 
 After running `save_resampled_grid_data`, move the directory containing generated files to `Assets/SimData`. To render this data, enter the `dataout` name in the "Sim Name" text input field in the game Options menu.
