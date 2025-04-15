@@ -77,8 +77,8 @@ public class OptionsMenu : MonoBehaviour
         int logscale = PlayerPrefs.GetInt("logscale");
 
         string sim_name = PlayerPrefs.GetString("simname");
-        string simdir = @"Assets/Gridfunctions/" + sim_name;
-        string simpar = @"Assets/Gridfunctions/" + sim_name + @"/" + sim_name + "_pars.txt";
+        string simdir = @"Assets/SimData/" + sim_name;
+        string simpar = @"Assets/SimData/" + sim_name + @"/" + sim_name + "_pars.txt";
 
         string setcmapstr = PlayerPrefs.GetString("cmap");
 
