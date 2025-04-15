@@ -1,13 +1,19 @@
-# Marching-Cubes
-Coding Adventure
+# SimFlightSim
+Utilities and interface for visualizing Cactus simulation data using the Unity Game Engine. Originally derived from Sebastian Lague's Marching Cubes project. Check out his [video](https://www.youtube.com/watch?v=M3iI2l0ltbE) and [code](https://github.com/SebLague/Marching-Cubes).
 
-See my video on this project here: https://www.youtube.com/watch?v=M3iI2l0ltbE
-To run this project you'll need to open it in the Unity game engine: https://unity3d.com/
+# Using the Cactus reader:
+The script for preprocessing 3D Carpet HDF5 data can be found in `Utils/save_resampled_grid_data.py`. This relies on [kuibit](https://sbozzolo.github.io/kuibit/index.html).
 
-![Underwater World](https://i.boring.host/10RZs7xV.png)
+Run the script by using:
+```
+python save_resampled_grid_data.py --variable (grid variable to export) --iteration (iteration to export) --dataout (name of output files) -x0 (origin of export domain; x, y, z) -x1 (corner of export domain; x, y, z) --numchunks (chunk configuration; x, y, z)
+```
 
+## Example
+The script essentially interpolates 3D data to 128^3 point cubes, or "chunks". `x0` and `x1` set the size of the region to be exported, and `numchunks` sets the resolution of export data. For example:
+```
+python save_resampled_grid_data.py --variable rho --iteration 102400 --dataout bns_MR -x0 -100 -100 -50 -x1 100 100 50 --numchunks 2 2 1
+```
+exports `rho` at iteration 102400 and stores exported data in a directory named `bns_MR`. Exported data will divide a domain of $x \in [-100, 100]; y \in [-100, 100]; z \in [-50. 50]$ into $2 \times 2 \times 1$ chunks, such that the final uniform grid has $256 \times 256 \times 128$ points. Each direction of each chunk must have the same grid spacing. In this case, the spacing is $100/128$ code units.
 
-Learning resources:
-http://paulbourke.net/geometry/polygonise/
-https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch01.html
-https://people.eecs.berkeley.edu/~jrs/meshpapers/LorensenCline.pdf
+After running `save_resampled_grid_data`, move the directory containing generated files to `Assets/SimData`. To render this data, enter the `dataout` name in the "Sim Name" text input field in the game Options menu.
