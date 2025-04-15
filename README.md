@@ -23,7 +23,7 @@ You can add point masses that interact with the player in game. This information
 ```
 NSInfo: (Mass) (x) (y) (z)
 ```
-For a black hole, you can set an "event horizon" radius, which will just be a black sphere generated in game:
+where x, y, and z are the coordinates of the point mass in code units. The mass can be given in code units, although the "gravitational force" is currently a bit ad hoc, taking the player's mass to be 0.01 M. For a black hole, you can also set an "event horizon" radius, which will just be a black sphere generated in game:
 ```
 BHInfo: (Mass) (Horizon radius) (x) (y) (z)
 ```
