@@ -3,8 +3,9 @@
 [Oo]bj/
 [Bb]uild/
 [Bb]uilds/
+[Ll]ogs/
 Assets/AssetStoreTools*
-Assets/Gridfunctions/**
+Assets/StreamingAssets/SimData/**
 
 # Visual Studio cache directory
 .vs/
