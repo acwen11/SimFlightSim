@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 0.1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.0044607185, g: 0.003969316, b: 0.0047547794, a: 0.1}
+  m_IndirectSpecularColor: {r: 0.0044607758, g: 0.0039693983, b: 0.004754915, a: 0.1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -506,7 +506,7 @@ MonoBehaviour:
   maxRollSpeed: 30
   acceleration: 1
   drag_const: 0.1
-  ship_mass: 0.001
+  ship_mass: 0.01
   sim_pars: {fileID: 1613054147}
   fp_cam: {fileID: 1526812849}
   tp_cam: {fileID: 1861788288}
@@ -699,6 +699,7 @@ GameObject:
   - component: {fileID: 1227901992}
   - component: {fileID: 1227901993}
   - component: {fileID: 1227901994}
+  - component: {fileID: 1227901995}
   m_Layer: 0
   m_Name: Mesh Generator
   m_TagString: Untagged
@@ -718,12 +719,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c246675c48dd4e6796ca3fe12dabbb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  data_name: mergerLR
-  num_surfaces: 5
+  data_name: merger_demo
+  num_surfaces: 8
   logscale: 1
-  min_isoLevel: 1e-10
+  min_isoLevel: 1e-11
   max_isoLevel: 0.00015
-  cmap: {fileID: 1227901994}
+  cmap: {fileID: 1227901995}
   par_reader: {fileID: 1613054147}
   boundsSize: 1
   numChunks: {x: 1, y: 1, z: 1}
@@ -1392,6 +1393,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cmap: inferno
+--- !u!114 &1227901995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1227901942}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd0bdb979e7b0c441bf01e436ff4ec2c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cmap: inferno
 --- !u!1 &1254600029
 GameObject:
   m_ObjectHideFlags: 0
@@ -1556,7 +1570,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1efb383ddbc2529478d6f0a427f03019, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  datadir: mergerLR
+  datadir: merger_demo
   densityShader: {fileID: 7200000, guid: 35729b75fbd539c41a9d55db7fd3dd63, type: 3}
 --- !u!1 &1526812848
 GameObject:
