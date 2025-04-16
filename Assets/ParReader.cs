@@ -41,7 +41,8 @@ public class ParReader : MonoBehaviour
     private void Awake()
     {
         string data_name = PlayerPrefs.GetString("simname");
-        read_chunk_pars(@"Assets/SimData/" + data_name + @"/" + data_name + "_pars.txt", ref par_bounds, ref par_nChunks,
+        string par_path = System.IO.Path.Combine(Application.streamingAssetsPath, "SimData", data_name, data_name + "_pars.txt");
+        read_chunk_pars(par_path, ref par_bounds, ref par_nChunks,
             ref par_nSrcs, ref par_nAHs, ref grav_masses, ref ah_list);
         Debug.Log("Read " + par_nSrcs + " Masses.");
     }
