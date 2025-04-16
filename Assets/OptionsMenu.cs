@@ -106,9 +106,11 @@ public class OptionsMenu : MonoBehaviour
         //float maxval = PlayerPrefs.GetFloat("max");
         int logscale = PlayerPrefs.GetInt("logscale");
 
-        PlayerPrefs.SetString("simname", simstr);
-        string simdir = @"Assets/Gridfunctions/" + simstr;
-        string simpar = @"Assets/Gridfunctions/" + simstr + @"/" + simstr + "_pars.txt";
+        string sim_name = PlayerPrefs.GetString("simname");
+        //string simdir = @"Assets/SimData/" + sim_name;
+        //string simpar = @"Assets/SimData/" + sim_name + @"/" + sim_name + "_pars.txt";
+        string simdir = System.IO.Path.Combine(Application.streamingAssetsPath, "SimData", sim_name);
+        string simpar = System.IO.Path.Combine(Application.streamingAssetsPath, "SimData", sim_name, sim_name + "_pars.txt");
 
         string setcmapstr = PlayerPrefs.GetString("cmap");
 
@@ -129,12 +131,13 @@ public class OptionsMenu : MonoBehaviour
         }
         else if (!Directory.Exists(simdir))
         {
+            Debug.Log("Searched for data in " + simdir);
             errorMsg.text = "Error: data directory not found.";
             return;
         }
         else if (!File.Exists(simpar))
         {
-            Debug.Log(simpar);
+            Debug.Log("Searched for data at " + simpar);
             errorMsg.text = "Error: chunk parameters not found.";
             return;
         }

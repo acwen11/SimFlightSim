@@ -284,7 +284,8 @@ public class MeshGenerator : MonoBehaviour {
     {
         // Read in rho_b values from file
         // TODO: Cactus and Unity coords are inconsistent! Fix this in the data generation step instead.
-        string dat_file = @"Assets/Gridfunctions/" + data_name + @"/" + data_name + "_" + idx_ch[0] + idx_ch[1] + idx_ch[2] + ".bin";
+        // string dat_file = @"Assets/SimData/" + data_name + @"/" + data_name + "_" + idx_ch[0] + idx_ch[1] + idx_ch[2] + ".bin";
+        string dat_file = System.IO.Path.Combine(Application.streamingAssetsPath, "SimData", data_name, data_name + "_" + idx_ch[0] + idx_ch[1] + idx_ch[2] + ".bin");
         int numpoints = numPointsPerAxis * numPointsPerAxis * numPointsPerAxis;
         NativeArray<float> rho_tmp = new NativeArray<float>(numpoints * 4, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
         float[] rho_out = new float[numpoints * 4];
