@@ -30,6 +30,8 @@ public struct AHPars
 
 public class ParReader : MonoBehaviour
 {
+    public GameObject horizon;
+
     // From Parameter File
     [HideInInspector] public float par_bounds = 1f;
     [HideInInspector] public Vector3Int par_nChunks = Vector3Int.one;
@@ -45,7 +47,24 @@ public class ParReader : MonoBehaviour
         read_chunk_pars(par_path, ref par_bounds, ref par_nChunks,
             ref par_nSrcs, ref par_nAHs, ref grav_masses, ref ah_list);
         Debug.Log("Read " + par_nSrcs + " Masses.");
+        for (int ii=0; ii<par_nAHs; ii++)
+        {
+            Debug.Log("Drawing sphere at " + ah_list[ii].gcoords + " with rad = " + ah_list[ii].grad);
+            GameObject myhor = Instantiate(horizon, ah_list[ii].gcoords, Quaternion.identity);
+        }
     }
+
+    /*
+    void OnDrawGizmosSelected()
+    {
+        for (int ii=0; ii<par_nAHs; ii++)
+        {
+            Debug.Log("Drawing sphere at " + ah_list[ii].gcoords + " with rad = " + ah_list[ii].grad);
+            Gizmos.color = Color.black;
+            Gizmos.DrawSphere(ah_list[ii].gcoords, ah_list[ii].grad);
+        }
+    }
+    */
 
     private void Start()
     {
