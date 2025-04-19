@@ -11,8 +11,14 @@ public class OptionsMenu : MonoBehaviour
     public TextMeshProUGUI errorMsg;
     public MainMenu mainMenu;
 
+    private TouchScreenKeyboard overlayKeyboard;
+    public static string inputText = "";
+
     [HideInInspector]
     public bool opt_set;
+    private string minvalstr;
+    private string maxvalstr;
+    private string simstr;
 
     void Awake()
     {
@@ -21,7 +27,8 @@ public class OptionsMenu : MonoBehaviour
 
     public void setSimName(string name)
     {
-        PlayerPrefs.SetString("simname", name);
+        simstr = name;
+        PlayerPrefs.SetString("simname", simstr);
     }
 
     public void setCmap(int cmapid)
@@ -49,13 +56,15 @@ public class OptionsMenu : MonoBehaviour
 
     public void setMin(string minstr)
     {
-        float minval = float.Parse(minstr);
-        PlayerPrefs.SetFloat("min", minval);
+        //float minval = float.Parse(minstr);
+        //PlayerPrefs.SetFloat("min", minval);
+        minvalstr = minstr;
     }
     public void setMax(string maxstr)
     {
-        float maxval = float.Parse(maxstr);
-        PlayerPrefs.SetFloat("max", maxval);
+        //float maxval = float.Parse(maxstr);
+        //PlayerPrefs.SetFloat("max", maxval);
+        maxvalstr = maxstr;
     }
     public void setLog(bool log)
     {
@@ -69,11 +78,33 @@ public class OptionsMenu : MonoBehaviour
         isosurfCounter.text = ns.ToString();
     }
 
+    public void OpenKeyboard()
+    {
+        Debug.Log("Opening Keyboard");
+        overlayKeyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default);
+    }
+
     public void TryBack()
     {
         // Check Options are Valid
-        float minval = PlayerPrefs.GetFloat("min");
-        float maxval = PlayerPrefs.GetFloat("max");
+        float minval = -99f;
+        float maxval = -99f;
+        try
+        {
+            Debug.Log("minstr = " + minvalstr);
+            Debug.Log("maxstr = " + maxvalstr);
+            minval = float.Parse(minvalstr);
+            PlayerPrefs.SetFloat("min", minval);
+            maxval = float.Parse(maxvalstr);
+            PlayerPrefs.SetFloat("max", maxval);
+        }
+        catch
+        {
+            errorMsg.text = "Error: Cannot parse min and/or max values.";
+            return;
+        }
+        //float minval = PlayerPrefs.GetFloat("min");
+        //float maxval = PlayerPrefs.GetFloat("max");
         int logscale = PlayerPrefs.GetInt("logscale");
 
         string sim_name = PlayerPrefs.GetString("simname");
