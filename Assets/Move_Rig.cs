@@ -30,7 +30,7 @@ public class Move_Rig: MonoBehaviour
         // lookAction = InputSystem.actions.FindAction("XRI Head/Rotation");
         upThrustAction = InputSystem.actions.FindAction("XRI RightHand Interaction/Select");
         downThrustAction = InputSystem.actions.FindAction("XRI LeftHand Interaction/Select");
-        rollTriggerAction = InputSystem.actions.FindAction("XRI RightHand Interaction/Activate");
+        rollTriggerAction = InputSystem.actions.FindAction("XRI LeftHand Interaction/Activate");
     }
 
     void Update()

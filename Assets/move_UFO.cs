@@ -73,6 +73,11 @@ public class move_UFO : MonoBehaviour
             health -= 5;
             Debug.Log("Hit! Health = " + health);
         }
+        if (other.GetComponent<HorizonFlag>() != null)
+        {
+            health = 0f;
+            Debug.Log("Sucked into Black Hole!");
+        }
     }
 
     private void OnTriggerStay(Collider other)
