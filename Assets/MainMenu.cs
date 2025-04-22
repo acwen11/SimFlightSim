@@ -27,6 +27,19 @@ public class MainMenu : MonoBehaviour
         }
     }
 
+    public void StartTwoPlayer()
+    {
+        if (!options.opt_set)
+        {
+            errorMsg.text = "Error: options not set.";
+            return;
+        }
+        else
+        {
+            SceneManager.LoadScene("2Player");
+        }
+    }
+
     public void StartViewer()
     {
         if (!options.opt_set)

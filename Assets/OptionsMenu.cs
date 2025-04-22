@@ -28,6 +28,7 @@ public class OptionsMenu : MonoBehaviour
     public void setSimName(string name)
     {
         simstr = name;
+        PlayerPrefs.SetString("simname", simstr);
     }
 
     public void setCmap(int cmapid)

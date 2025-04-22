@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 
 public class move_UFO : MonoBehaviour
 {
+    public bool isPlayer1;
+
     public float maxSpeed = 1;
     // public float maxPitchSpeed = 3;
     public float maxRotSpeed = 50;
@@ -14,11 +16,14 @@ public class move_UFO : MonoBehaviour
     public float drag_const = 0.1f;
     public float ship_mass = 0.001f;
 
+    public float maxhealth = 100f;
+    public float health; 
+    public float maxtime = 60f;
+    public float time; 
+
     public ParReader sim_pars;
 
-    // public float smoothSpeed = 3;
-    // public float smoothTurnSpeed = 3;
-
+    public Camera pCam;
     public CinemachineVirtualCamera fp_cam;
     public CinemachineVirtualCamera tp_cam;
 
@@ -28,6 +33,11 @@ public class move_UFO : MonoBehaviour
     // float currentSpeed;
     Vector3 currentVel;
 
+    [SerializeField] private LayerMask aimColliderLayerMask = new LayerMask();
+    [SerializeField] private Transform debugTransform;
+    [SerializeField] private Transform laserTransform;
+    [SerializeField] private Transform spawnBulletPosition;
+
     // Input Vars
     InputAction moveAction;
     InputAction lookAction;
@@ -35,11 +45,14 @@ public class move_UFO : MonoBehaviour
     InputAction downThrustAction;
     InputAction rollAction;
     InputAction toggleCamAction;
+    InputAction fireAction;
 
     void Awake()
     {
         // currentSpeed = maxSpeed;
         currentVel = Vector3.zero;
+        health = maxhealth;
+        time = maxtime;
     }
 
     private void Start()
@@ -50,6 +63,26 @@ public class move_UFO : MonoBehaviour
         downThrustAction = InputSystem.actions.FindAction("Player/Down Thrust");
         rollAction = InputSystem.actions.FindAction("Player/Roll Mode");
         toggleCamAction = InputSystem.actions.FindAction("Player/Toggle Camera");
+        fireAction = InputSystem.actions.FindAction("Player/Fire");
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<laser_projectile>() != null)
+        {
+            health -= 5;
+            Debug.Log("Hit! Health = " + health);
+        }
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.GetComponent<HardSurfaceFlag>() != null)
+        {
+            health -= 0.05f;
+            Debug.Log("Hit surface! Health = " + health);
+        }
+
     }
 
     void Update()
@@ -128,6 +161,35 @@ public class move_UFO : MonoBehaviour
             fp_cam.m_Priority = tp_prio;
             tp_cam.m_Priority = fp_prio;
         }
+
+        // Shooting
+        // Get look direction
+        Vector3 mouseWorldPosition = Vector3.zero;
+        Vector2 camCenter = Vector2.zero;
+        if (isPlayer1) {
+            camCenter = new Vector2(Screen.width / 4f, Screen.height / 2f);
+        }
+        else
+        {
+            camCenter = new Vector2(3f * Screen.width / 4f, Screen.height / 2f);
+        }
+        Ray ray = pCam.ScreenPointToRay(camCenter);
+        if (Physics.Raycast(ray, out RaycastHit raycastHit, 999f, aimColliderLayerMask))
+        {
+            debugTransform.position = raycastHit.point;
+            mouseWorldPosition = raycastHit.point;
+        }
+
+        if (fireAction.WasPressedThisFrame())
+        {
+            Debug.Log("Fire Pressed");
+            Vector3 aimdir = (mouseWorldPosition - spawnBulletPosition.position).normalized;
+            Instantiate(laserTransform, spawnBulletPosition.position, Quaternion.LookRotation(aimdir, Vector3.up));
+        }
+
+        // Time dilation
+        float alp = 1f; // use superimposed Kerr-Schild alp?
+        time -= alp * Time.deltaTime;
 
     }
 }
