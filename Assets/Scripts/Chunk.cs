@@ -111,6 +111,22 @@ public class Chunk : MonoBehaviour {
                 colliders[ii].enabled = true;
             }
 
+            // Set transparency
+            if (ii == 0)
+            {
+                renderers[ii].material = opq_mat;
+                renderers[ii].material.renderQueue = 2000; // force this to render after skybox
+
+                // Enable collisions here just because
+                colliders[ii] = surfaces[ii].AddComponent<MeshCollider> ();
+                surfaces[ii].AddComponent<HardSurfaceFlag>();
+            }
+            else
+            {
+                renderers[ii].material = trans_mat;
+                renderers[ii].material.renderQueue = ii * 1 + 3000; // force this to render after skybox
+            }
+
             // Set Color
             float alp_pow = 2.0f;
             float ens = Mathf.Pow(ns, alp_pow);
@@ -118,19 +134,6 @@ public class Chunk : MonoBehaviour {
             float alp = 1.0f;
             float[] mat_rgb = cmap.get_cmap_rgb(ii, ns);
             Color iso_color = new Color(mat_rgb[0], mat_rgb[1], mat_rgb[2], alp);
-            if (ii == 0)
-            {
-                renderers[ii].material = opq_mat;
-                renderers[ii].material.renderQueue = 2000; // force this to render after skybox
-
-                // Enable collisions here
-                colliders[ii] = surfaces[ii].AddComponent<MeshCollider> ();
-            }
-            else
-            {
-                renderers[ii].material = trans_mat;
-                renderers[ii].material.renderQueue = ii * 1 + 3000; // force this to render after skybox
-            }
             renderers[ii].material.color = iso_color;
             if (ii == 0)
             {
