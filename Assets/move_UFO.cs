@@ -14,7 +14,10 @@ public class move_UFO : MonoBehaviour
     public float maxRollSpeed = 50;
     public float acceleration = 2;
     public float drag_const = 0.1f;
-    public float ship_mass = 0.001f;
+    public float grav_const = 0.001f;
+
+    public float shoot_delay = 0.5f;
+    private float shoot_timer = 0.5f;
 
     public float maxhealth = 100f;
     public float health; 
@@ -121,7 +124,7 @@ public class move_UFO : MonoBehaviour
             Vector3 rvec = transform.position - sim_pars.grav_masses[ii].gcoords;
             float rr = Mathf.Min(rvec.sqrMagnitude, 0.25f); // buffer radius a little bit
             Vector3 rhat = rvec.normalized;
-            Vector3 Fg = transform.InverseTransformVector(-ship_mass * (sim_pars.grav_masses[ii].gmass / rr) * rhat);
+            Vector3 Fg = transform.InverseTransformVector(-grav_const * (sim_pars.grav_masses[ii].gmass / rr) * rhat);
             accel_vec += Fg;
         }
 
@@ -180,12 +183,14 @@ public class move_UFO : MonoBehaviour
             mouseWorldPosition = raycastHit.point;
         }
 
-        if (fireAction.WasPressedThisFrame())
+        if (fireAction.WasPressedThisFrame() && shoot_timer >= shoot_delay)
         {
             Debug.Log("Fire Pressed");
+            shoot_timer = 0f;
             Vector3 aimdir = (mouseWorldPosition - spawnBulletPosition.position).normalized;
             Instantiate(laserTransform, spawnBulletPosition.position, Quaternion.LookRotation(aimdir, Vector3.up));
         }
+        shoot_timer = Mathf.Min(shoot_delay, shoot_timer + Time.deltaTime);
 
         // Time dilation
         float alp = 1f; // use superimposed Kerr-Schild alp?
