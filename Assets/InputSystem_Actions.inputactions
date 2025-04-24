@@ -56,7 +56,7 @@
                     "id": "0b3e611e-fc71-4cf7-a2b5-8876ad82895c",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "Tap",
+                    "interactions": "Press(behavior=1)",
                     "initialStateCheck": false
                 },
                 {
@@ -65,7 +65,7 @@
                     "id": "ddb3712f-a449-4ba7-b716-97829f384997",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Press",
                     "initialStateCheck": false
                 }
             ],

@@ -21,11 +21,11 @@ public class move_UFO : MonoBehaviour
     private float shoot_timer = 0.5f;
 
     public float maxhealth = 100f;
-    public float health; 
+    public float health = 100f; 
     public float maxtime = 60f;
-    public float time; 
+    public float time = 60f; 
 
-    public ParReader sim_pars;
+    private ParReader sim_pars;
 
     public Camera pCam;
     public CinemachineVirtualCamera fp_cam;
@@ -38,21 +38,113 @@ public class move_UFO : MonoBehaviour
     Vector3 currentVel;
 
     [SerializeField] private LayerMask aimColliderLayerMask = new LayerMask();
-    [SerializeField] private Transform debugTransform;
+    // [SerializeField] private Transform debugTransform;
     [SerializeField] private Transform laserTransform;
     [SerializeField] private Transform spawnBulletPosition;
 
+    private HUDManager myHUDManager;
+
     // Input Vars
-    InputAction moveAction;
-    InputAction lookAction;
-    InputAction upThrustAction;
-    InputAction downThrustAction;
-    InputAction rollAction;
-    InputAction toggleCamAction;
-    InputAction fireAction;
+    //InputAction moveAction;
+    private Vector2 moveValue;
+    //InputAction lookAction;
+    private Vector2 rotValue;
+    // InputAction upThrustAction;
+    private bool upThrust = false;
+    // InputAction downThrustAction;
+    private bool downThrust = false;
+    // InputAction rollAction;
+    private bool rollMode = false;
+    // InputAction toggleCamAction;
+    private bool toggleCam;
+    // InputAction fireAction;
+    private bool fire;
+
+    // Input Messages
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        moveValue = context.ReadValue<Vector2>(); 
+    }
+
+    public void OnLook(InputAction.CallbackContext context)
+    {
+        rotValue = context.ReadValue<Vector2>(); 
+    }
+
+    public void OnUpThrust(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            upThrust = true;
+        }
+        else
+        {
+            upThrust = false;
+        }
+    }
+
+    public void OnDownThrust(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            downThrust = true;
+        }
+        else
+        {
+            downThrust = false;
+        }
+    }
+
+    //public void OnRollMode(InputAction.CallbackContext context)
+    public void OnRollMode(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            rollMode = true;
+        }
+        else
+        {
+            rollMode = false;
+        }
+    }
+
+    public void OnToggleCamera(InputAction.CallbackContext context)
+    {
+        if (context.canceled)
+        {
+            toggleCam = true;
+        }
+        else
+        {
+            fire = false;
+        }
+    }
+
+    public void OnFire(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            fire = true;
+        }
+        else
+        {
+            fire = false;
+        }
+    }
 
     void Awake()
     {
+        sim_pars = FindFirstObjectByType<ParReader>();
+        myHUDManager = FindFirstObjectByType<HUDManager>();
+        if (isPlayer1)
+        {
+            myHUDManager.ufo1 = gameObject;
+        }
+        else
+        {
+            myHUDManager.ufo2 = gameObject;
+        }
+
         // currentSpeed = maxSpeed;
         currentVel = Vector3.zero;
         health = maxhealth;
@@ -61,13 +153,13 @@ public class move_UFO : MonoBehaviour
 
     private void Start()
     {
-        moveAction = InputSystem.actions.FindAction("Player/Move");
-        lookAction = InputSystem.actions.FindAction("Player/Look");
-        upThrustAction = InputSystem.actions.FindAction("Player/Up Thrust");
-        downThrustAction = InputSystem.actions.FindAction("Player/Down Thrust");
-        rollAction = InputSystem.actions.FindAction("Player/Roll Mode");
-        toggleCamAction = InputSystem.actions.FindAction("Player/Toggle Camera");
-        fireAction = InputSystem.actions.FindAction("Player/Fire");
+        //moveAction = InputSystem.actions.FindAction("Player/Move");
+        // lookAction = InputSystem.actions.FindAction("Player/Look");
+        // upThrustAction = InputSystem.actions.FindAction("Player/Up Thrust");
+        // downThrustAction = InputSystem.actions.FindAction("Player/Down Thrust");
+        // rollAction = InputSystem.actions.FindAction("Player/Roll Mode");
+        // toggleCamAction = InputSystem.actions.FindAction("Player/Toggle Camera");
+        // fireAction = InputSystem.actions.FindAction("Player/Fire");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -107,14 +199,14 @@ public class move_UFO : MonoBehaviour
         // Calculate Linear Motion
         // 1. Read input
         // NOTE: difference between Input system axes and object local axes
-        Vector2 moveValue = moveAction.ReadValue<Vector2>();
+        //Vector2 moveValue = moveAction.ReadValue<Vector2>();
         az = acceleration * moveValue.y;
         ax = acceleration * moveValue.x;
-        if (upThrustAction.IsPressed())
+        if (upThrust)
         {
             ay += acceleration;
         }
-        if (downThrustAction.IsPressed())
+        if (downThrust)
         {
             ay -= acceleration;
         }
@@ -147,8 +239,8 @@ public class move_UFO : MonoBehaviour
 
         // Calculate Rotation
         // 1. Get input
-        Vector2 rotValue = lookAction.ReadValue<Vector2>();
-        if (rollAction.IsPressed())
+        // Vector2 rotValue = lookAction.ReadValue<Vector2>();
+        if (rollMode)
         {
             omroll = -maxRollSpeed * rotValue.x; // Personal preference for direction
         }
@@ -163,12 +255,13 @@ public class move_UFO : MonoBehaviour
         transform.Rotate(omEuler * Time.deltaTime);
 
         // Additional actions
-        if (toggleCamAction.WasReleasedThisFrame())
+        if (toggleCam)
         {
             int fp_prio = fp_cam.m_Priority;
             int tp_prio = tp_cam.m_Priority;
             fp_cam.m_Priority = tp_prio;
             tp_cam.m_Priority = fp_prio;
+            toggleCam = false;
         }
 
         // Shooting
@@ -185,16 +278,16 @@ public class move_UFO : MonoBehaviour
         Ray ray = pCam.ScreenPointToRay(camCenter);
         if (Physics.Raycast(ray, out RaycastHit raycastHit, 999f, aimColliderLayerMask))
         {
-            debugTransform.position = raycastHit.point;
+            // debugTransform.position = raycastHit.point;
             mouseWorldPosition = raycastHit.point;
         }
 
-        if (fireAction.WasPressedThisFrame() && shoot_timer >= shoot_delay)
+        if (fire && shoot_timer >= shoot_delay)
         {
-            Debug.Log("Fire Pressed");
             shoot_timer = 0f;
             Vector3 aimdir = (mouseWorldPosition - spawnBulletPosition.position).normalized;
             Instantiate(laserTransform, spawnBulletPosition.position, Quaternion.LookRotation(aimdir, Vector3.up));
+            fire = false;
         }
         shoot_timer = Mathf.Min(shoot_delay, shoot_timer + Time.deltaTime);
 
@@ -209,7 +302,7 @@ public class move_UFO : MonoBehaviour
         float alp = 1f / Mathf.Sqrt(invalpsq);
         if (isPlayer1)
         {
-            Debug.Log("lapse = " + alp);
+            //Debug.Log("lapse = " + alp);
         }
         time -= alp * Time.deltaTime;
     }

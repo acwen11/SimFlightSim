@@ -43,6 +43,12 @@ public class HUDManager : MonoBehaviour
 
         if ((hp1.value <= 0 || hp2.value <= 0 || time1.value <= 0 || time2.value <= 0) && !gameover)
         {
+            // Force update
+            hp1.value = ufo_controller1.health;
+            hp2.value = ufo_controller2.health;
+            time1.value = ufo_controller1.time;
+            time2.value = ufo_controller2.time;
+
             if (hp1.value <= 0 || time1.value <= 0)
             {
                 Destroy(ufo1);
