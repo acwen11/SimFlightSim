@@ -34,12 +34,12 @@ public class laser_projectile : MonoBehaviour
         for (int ii = 0; ii < nsrcs; ii++)
         {
             Vector3 rvec = transform.position - pars.grav_masses[ii].gcoords;
-            float rr = Mathf.Min(rvec.sqrMagnitude, 0.25f); // buffer radius a little bit
+            float rr = Mathf.Max(rvec.sqrMagnitude, 0.005f); // buffer radius a little bit
             Vector3 rhat = rvec.normalized;
             // Newtonian lensing eq with factor 2 correction
-            Vector3 dv_perp = 2 * Time.deltaTime * (-Ggrav * (pars.grav_masses[ii].gmass / rr) * rhat);
-            Debug.Log("Current vel = " + bulletBody.velocity + "; dv = " + dv_perp);
-            bulletBody.velocity += dv_perp;
+            Vector3 dv = 2 * Time.deltaTime * (-Ggrav * (pars.grav_masses[ii].gmass / rr) * rhat);
+            // Debug.Log("Current vel = " + bulletBody.velocity + "; dv = " + dv);
+            bulletBody.velocity += dv;
         }
 
         // Align shape with motion

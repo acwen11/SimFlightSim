@@ -31,6 +31,7 @@ public struct AHPars
 public class ParReader : MonoBehaviour
 {
     public GameObject horizon;
+    public float bh_massfac = 1f;
 
     // From Parameter File
     [HideInInspector] public float par_bounds = 1f;
@@ -112,7 +113,7 @@ public class ParReader : MonoBehaviour
             }
             else if (inp_ln[0] == "BHInfo:")
             {
-                float tmpmass = float.Parse(inp_ln[1], CultureInfo.InvariantCulture.NumberFormat);
+                float tmpmass = bh_massfac * float.Parse(inp_ln[1], CultureInfo.InvariantCulture.NumberFormat);
                 float tmprad = float.Parse(inp_ln[2], CultureInfo.InvariantCulture.NumberFormat);
                 // Must account for different Cactus/Unity coords
                 Vector3 tmpcoords = new Vector3(float.Parse(inp_ln[3]), float.Parse(inp_ln[5]), float.Parse(inp_ln[4]));

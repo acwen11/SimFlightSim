@@ -317,8 +317,13 @@ MonoBehaviour:
   maxRollSpeed: 30
   acceleration: 1
   drag_const: 0.1
-  ship_mass: 0.01
+  Ggrav: 2
+  clight: 1
+  shoot_delay: 0.5
+  maxhealth: 100
   health: 100
+  maxtime: 40
+  time: 0
   sim_pars: {fileID: 0}
   pCam: {fileID: 0}
   fp_cam: {fileID: 0}

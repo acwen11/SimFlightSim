@@ -74,8 +74,13 @@ public class move_UFO : MonoBehaviour
     {
         if (other.GetComponent<laser_projectile>() != null)
         {
-            health -= 5;
+            health -= 5f;
             Debug.Log("Hit! Health = " + health);
+        }
+        else if (other.GetComponent<HorizonFlag>() != null)
+        {
+            health = 0;
+            Debug.Log("Sucked into black hole!");
         }
     }
 
@@ -83,7 +88,7 @@ public class move_UFO : MonoBehaviour
     {
         if (other.GetComponent<HardSurfaceFlag>() != null)
         {
-            health -= 0.05f;
+            health -= 0.1f;
             Debug.Log("Hit surface! Health = " + health);
         }
 
@@ -123,7 +128,7 @@ public class move_UFO : MonoBehaviour
         for (int ii=0; ii<nsrcs; ii++)
         {
             Vector3 rvec = transform.position - sim_pars.grav_masses[ii].gcoords;
-            float rr = Mathf.Min(rvec.sqrMagnitude, 0.25f); // buffer radius a little bit
+            float rr = Mathf.Max(rvec.sqrMagnitude, 0.005f); // buffer radius a little bit
             Vector3 rhat = rvec.normalized;
             Vector3 Fg = transform.InverseTransformVector(-Ggrav * (sim_pars.grav_masses[ii].gmass / rr) * rhat);
             accel_vec += Fg;
@@ -198,10 +203,10 @@ public class move_UFO : MonoBehaviour
         for (int ii = 0; ii < nsrcs; ii++)
         {
             Vector3 rvec = transform.position - sim_pars.grav_masses[ii].gcoords;
-            float rad = Mathf.Min(rvec.magnitude, 0.25f); // buffer radius a little bit
+            float rad = Mathf.Max(rvec.magnitude, 0.005f); // buffer radius a little bit
             invalpsq += (2 * Ggrav * sim_pars.grav_masses[ii].gmass) / (clight * clight * rad);
         }
-        float alp = 1 / Mathf.Sqrt(invalpsq);
+        float alp = 1f / Mathf.Sqrt(invalpsq);
         if (isPlayer1)
         {
             Debug.Log("lapse = " + alp);
