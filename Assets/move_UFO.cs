@@ -14,7 +14,8 @@ public class move_UFO : MonoBehaviour
     public float maxRollSpeed = 50;
     public float acceleration = 2;
     public float drag_const = 0.1f;
-    public float grav_const = 0.001f;
+    public float Ggrav;
+    public float clight;
 
     public float shoot_delay = 0.5f;
     private float shoot_timer = 0.5f;
@@ -124,7 +125,7 @@ public class move_UFO : MonoBehaviour
             Vector3 rvec = transform.position - sim_pars.grav_masses[ii].gcoords;
             float rr = Mathf.Min(rvec.sqrMagnitude, 0.25f); // buffer radius a little bit
             Vector3 rhat = rvec.normalized;
-            Vector3 Fg = transform.InverseTransformVector(-grav_const * (sim_pars.grav_masses[ii].gmass / rr) * rhat);
+            Vector3 Fg = transform.InverseTransformVector(-Ggrav * (sim_pars.grav_masses[ii].gmass / rr) * rhat);
             accel_vec += Fg;
         }
 
@@ -193,8 +194,18 @@ public class move_UFO : MonoBehaviour
         shoot_timer = Mathf.Min(shoot_delay, shoot_timer + Time.deltaTime);
 
         // Time dilation
-        float alp = 1f; // use superimposed Kerr-Schild alp?
+        float invalpsq = 1f; // use superimposed nonspinning Kerr-Schild lapse
+        for (int ii = 0; ii < nsrcs; ii++)
+        {
+            Vector3 rvec = transform.position - sim_pars.grav_masses[ii].gcoords;
+            float rad = Mathf.Min(rvec.magnitude, 0.25f); // buffer radius a little bit
+            invalpsq += (2 * Ggrav * sim_pars.grav_masses[ii].gmass) / (clight * clight * rad);
+        }
+        float alp = 1 / Mathf.Sqrt(invalpsq);
+        if (isPlayer1)
+        {
+            Debug.Log("lapse = " + alp);
+        }
         time -= alp * Time.deltaTime;
-
     }
 }
