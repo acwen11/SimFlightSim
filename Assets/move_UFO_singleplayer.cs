@@ -4,10 +4,9 @@ using UnityEngine;
 using Cinemachine;
 using UnityEngine.InputSystem;
 
-public class move_UFO : MonoBehaviour
+public class move_UFO_singleplayer : MonoBehaviour
 {
     public bool isPlayer1;
-    public bool is_singleplayer = false;
 
     public float maxSpeed = 1;
     // public float maxPitchSpeed = 3;
@@ -176,10 +175,7 @@ public class move_UFO : MonoBehaviour
         {
             health = 0;
             Debug.Log("Sucked into black hole!");
-            if (is_singleplayer)
-            {
-                transform.position = spawnpt.position;
-            }
+            transform.position = spawnpt.position;
         }
     }
 

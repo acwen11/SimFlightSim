@@ -772,6 +772,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isPlayer1: 1
+  is_singleplayer: 0
   maxSpeed: 2
   maxRotSpeed: 30
   maxRollSpeed: 30
@@ -782,11 +783,12 @@ MonoBehaviour:
   shoot_delay: 0.5
   maxhealth: 100
   health: 100
-  maxtime: 40
-  time: 40
+  maxtime: 45
+  time: 45
   pCam: {fileID: 2534916524513621326}
   fp_cam: {fileID: 2859903426449433129}
   tp_cam: {fileID: 2228390222627981343}
+  spawnpt: {fileID: 0}
   aimColliderLayerMask:
     serializedVersion: 2
     m_Bits: 1

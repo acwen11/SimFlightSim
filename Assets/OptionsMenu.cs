@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using System.IO;
+using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 //using UnityEditor.UI;
 
 public class OptionsMenu : MonoBehaviour
@@ -14,15 +16,21 @@ public class OptionsMenu : MonoBehaviour
     private TouchScreenKeyboard overlayKeyboard;
     public static string inputText = "";
 
+    public GameObject firstButton;
+
     [HideInInspector]
     public bool opt_set;
+    [HideInInspector]
+    public bool is_singleplayer;
     private string minvalstr;
     private string maxvalstr;
     private string simstr;
 
     void Awake()
     {
-        opt_set = false;        
+        opt_set = false;
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(firstButton);
     }
 
     public void setSimName(string name)
@@ -82,6 +90,42 @@ public class OptionsMenu : MonoBehaviour
     {
         Debug.Log("Opening Keyboard");
         overlayKeyboard = TouchScreenKeyboard.Open("", TouchScreenKeyboardType.Default);
+    }
+
+    public void SetBNS()
+    {
+        PlayerPrefs.SetString("simname", "merger_demo");
+        PlayerPrefs.SetString("cmap", "plasma");
+        PlayerPrefs.SetFloat("min", 1e-11f);
+        PlayerPrefs.SetFloat("max", 1.5e-4f);
+        PlayerPrefs.SetInt("logscale", 1);
+        PlayerPrefs.SetInt("numSurfaces", 8);
+        if (is_singleplayer)
+        {
+            SceneManager.LoadScene("Submarine");
+        }
+        else
+        {
+            SceneManager.LoadScene("2Player");
+        }
+    }
+
+    public void SetBBH()
+    {
+        PlayerPrefs.SetString("simname", "lorenzo_bbh_LR");
+        PlayerPrefs.SetString("cmap", "plasma");
+        PlayerPrefs.SetFloat("min", 1e-12f);
+        PlayerPrefs.SetFloat("max", 2e-4f);
+        PlayerPrefs.SetInt("logscale", 1);
+        PlayerPrefs.SetInt("numSurfaces", 6);
+        if (is_singleplayer)
+        {
+            SceneManager.LoadScene("Submarine");
+        }
+        else
+        {
+            SceneManager.LoadScene("2Player");
+        }
     }
 
     public void TryBack()
@@ -152,4 +196,8 @@ public class OptionsMenu : MonoBehaviour
         }
     }
 
+    public void ToMenu()
+    {
+        SceneManager.LoadScene("Menu");
+    }
 }

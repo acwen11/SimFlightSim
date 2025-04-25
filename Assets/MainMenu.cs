@@ -6,58 +6,41 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
-    public TextMeshProUGUI errorMsg;
+    // public TextMeshProUGUI errorMsg;
     public OptionsMenu options;
+    public HowtoPlayMenu tut;
 
     void Awake()
     {
         options.opt_set = false;        
     }
 
-    public void StartGame()
+    public void Select1p()
     {
-        if (!options.opt_set)
-        {
-            errorMsg.text = "Error: options not set.";
-            return;
-        }
-        else
-        {
-            SceneManager.LoadScene("Submarine");
-        }
+        options.is_singleplayer = true;
+        gameObject.SetActive(false);
+        options.gameObject.SetActive(true);
     }
 
-    public void StartTwoPlayer()
+    public void Select2p()
     {
-        if (!options.opt_set)
-        {
-            errorMsg.text = "Error: options not set.";
-            return;
-        }
-        else
-        {
-            SceneManager.LoadScene("2Player");
-        }
+        options.is_singleplayer = false;
+        gameObject.SetActive(false);
+        options.gameObject.SetActive(true);
     }
 
-    public void StartViewer()
-    {
-        if (!options.opt_set)
-        {
-            errorMsg.text = "Error: options not set.";
-            return;
-        }
-        else
-        {
-            SceneManager.LoadScene("Viewer");
-        }
-    }
-
+    /*
     public void GoToOptions()
     {
         errorMsg.text = string.Empty;
         this.gameObject.SetActive(false);
         options.gameObject.SetActive(true);
+    }
+    */
+    public void GoToOptions()
+    {
+        gameObject.SetActive(false);
+        tut.gameObject.SetActive(true);
     }
 
     public void QuitGame()
